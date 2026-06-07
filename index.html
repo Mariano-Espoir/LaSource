@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LaSource — La plateforme de mentorat pour la jeunesse</title>
+<link rel="stylesheet" href="styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-mark">L</div>
+      <div>
+        <div class="logo-text">LaSource</div>
+        <div class="logo-sub">Mentorat pour la jeunesse</div>
+      </div>
+    </div>
+
+    <div class="search">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Rechercher une question, un mentor, un secteur..."/>
+    </div>
+
+    <nav class="nav-links">
+      <button class="nav-tab" data-screen="feed">Accueil</button>
+      <button class="nav-tab" data-screen="profile">Mentor</button>
+      <button class="nav-tab" data-screen="ask">Poser</button>
+      <button class="nav-tab" data-screen="admin">Admin</button>
+      <button class="icon-btn" title="Notifications">🔔<span class="badge">3</span></button>
+      <div class="avatar avatar-sm" title="Mon profil">AK</div>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ SCREEN 1 : HOME FEED ============ -->
+<main id="screen-feed" class="screen active">
+  <div class="layout-3col">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left">
+      <div class="card profile-card">
+        <div class="profile-cover"></div>
+        <div class="avatar avatar-lg">AK</div>
+        <h3>Aïcha Kouassi</h3>
+        <p class="muted">🇨🇮 Côte d'Ivoire</p>
+        <span class="level-chip">Niveau 3 · Étudiante</span>
+        <div class="profile-stats">
+          <div><strong>12</strong><span>Questions</span></div>
+          <div><strong>48</strong><span>Réponses</span></div>
+          <div><strong>156</strong><span>Utile</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4 class="card-title">Secteurs suivis</h4>
+        <ul class="sector-list">
+          <li><span class="dot dot-blue"></span>Technologie <span class="count">128</span></li>
+          <li><span class="dot dot-green"></span>Médecine <span class="count">87</span></li>
+          <li><span class="dot dot-orange"></span>Finance <span class="count">42</span></li>
+          <li><span class="dot dot-purple"></span>Éducation <span class="count">35</span></li>
+          <li><span class="dot dot-red"></span>Droit <span class="count">21</span></li>
+        </ul>
+        <button class="btn-ghost btn-block">+ Ajouter un secteur</button>
+      </div>
+    </aside>
+
+    <!-- MAIN FEED -->
+    <section class="feed">
+      <!-- Ask trigger -->
+      <div class="card ask-trigger" onclick="showScreen('ask')">
+        <div class="avatar avatar-sm">AK</div>
+        <div class="ask-input">Quelle est votre question aujourd'hui&nbsp;?</div>
+        <button class="btn-primary">Poser</button>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <div class="tabs">
+          <button class="tab active">Les plus récentes</button>
+          <button class="tab">Les plus populaires</button>
+          <button class="tab">Sans réponse</button>
+        </div>
+        <div class="filters">
+          <select><option>🌍 Tous les pays</option><option>Côte d'Ivoire</option><option>Sénégal</option><option>France</option></select>
+          <select><option>Tous les secteurs</option><option>Technologie</option><option>Médecine</option><option>Droit</option></select>
+        </div>
+      </div>
+
+      <!-- Question card 1 (with mentor answer) -->
+      <article class="card question-card">
+        <header class="q-head">
+          <div class="avatar avatar-md">MD</div>
+          <div>
+            <div class="q-user">Mariam Diallo <span class="level-chip sm">Niveau 2</span></div>
+            <div class="muted sm">🇸🇳 Sénégal · il y a 2 h</div>
+          </div>
+          <span class="cat-chip cat-tech">Technologie</span>
+        </header>
+        <h2 class="q-title">Comment commencer une carrière en développement web sans diplôme&nbsp;?</h2>
+        <p class="q-body">Je suis autodidacte et je connais HTML, CSS et un peu de JavaScript. Quels sont les étapes concrètes pour décrocher mon premier emploi&nbsp;?</p>
+
+        <!-- Mentor answer -->
+        <div class="mentor-answer">
+          <div class="mentor-head">
+            <div class="avatar avatar-sm avatar-mentor">SK</div>
+            <div>
+              <div class="mentor-name">Samuel Koffi <span class="verified">✓ Mentor vérifié</span></div>
+              <div class="muted sm">Lead Developer · 8 ans d'expérience</div>
+            </div>
+          </div>
+          <p>Excellente question. Concentre-toi sur 3 piliers : 1) construire un portfolio de 3 projets concrets, 2) contribuer à de l'open-source, 3) réseauter sur LinkedIn. La plupart des entreprises tech valorisent la preuve par le code avant le diplôme...</p>
+          <button class="link-btn">Lire la réponse complète →</button>
+        </div>
+
+        <footer class="q-footer">
+          <button class="action-btn">👍 Utile <strong>42</strong></button>
+          <button class="action-btn">💬 <strong>7</strong> réponses</button>
+          <button class="action-btn">🔖 Sauvegarder</button>
+          <button class="action-btn">↗ Partager</button>
+        </footer>
+      </article>
+
+      <!-- Question card 2 -->
+      <article class="card question-card">
+        <header class="q-head">
+          <div class="avatar avatar-md">JN</div>
+          <div>
+            <div class="q-user">Jean N'Guessan <span class="level-chip sm">Niveau 1</span></div>
+            <div class="muted sm">🇨🇮 Côte d'Ivoire · il y a 5 h</div>
+          </div>
+          <span class="cat-chip cat-med">Médecine</span>
+        </header>
+        <h2 class="q-title">Médecine ou pharmacie : que choisir après le bac scientifique&nbsp;?</h2>
+        <p class="q-body">J'hésite entre les deux voies. J'aimerais avoir l'avis de professionnels sur les débouchés réels dans nos pays.</p>
+        <footer class="q-footer">
+          <button class="action-btn">👍 Utile <strong>28</strong></button>
+          <button class="action-btn">💬 <strong>3</strong> réponses</button>
+          <button class="action-btn">🔖 Sauvegarder</button>
+          <button class="action-btn">↗ Partager</button>
+        </footer>
+      </article>
+
+      <!-- Question card 3 -->
+      <article class="card question-card">
+        <header class="q-head">
+          <div class="avatar avatar-md">FB</div>
+          <div>
+            <div class="q-user">Fatou Bâ <span class="level-chip sm">Niveau 4</span></div>
+            <div class="muted sm">🇸🇳 Sénégal · il y a 8 h</div>
+          </div>
+          <span class="cat-chip cat-fin">Finance</span>
+        </header>
+        <h2 class="q-title">Comment économiser quand on a un petit salaire en début de carrière&nbsp;?</h2>
+        <p class="q-body">Je gagne 180 000 FCFA/mois. Quelles habitudes adopter dès maintenant pour bâtir une épargne solide&nbsp;?</p>
+
+        <div class="mentor-answer">
+          <div class="mentor-head">
+            <div class="avatar avatar-sm avatar-mentor">AN</div>
+            <div>
+              <div class="mentor-name">Awa Ndiaye <span class="verified">✓ Mentor vérifié</span></div>
+              <div class="muted sm">Conseillère financière</div>
+            </div>
+          </div>
+          <p>Règle simple à appliquer : 50/30/20. 50% besoins essentiels, 30% plaisirs, 20% épargne automatique en début de mois...</p>
+          <button class="link-btn">Lire la réponse complète →</button>
+        </div>
+
+        <footer class="q-footer">
+          <button class="action-btn">👍 Utile <strong>91</strong></button>
+          <button class="action-btn">💬 <strong>12</strong> réponses</button>
+          <button class="action-btn">🔖 Sauvegarder</button>
+          <button class="action-btn">↗ Partager</button>
+        </footer>
+      </article>
+    </section>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right">
+      <div class="card">
+        <h4 class="card-title">🔥 Questions tendance</h4>
+        <ol class="trending">
+          <li><a>Faut-il faire ses études à l'étranger en 2026&nbsp;?</a><span class="muted sm">214 réponses</span></li>
+          <li><a>Comment lancer une startup sans capital&nbsp;?</a><span class="muted sm">178 réponses</span></li>
+          <li><a>L'IA va-t-elle remplacer les juristes&nbsp;?</a><span class="muted sm">142 réponses</span></li>
+          <li><a>Quelle filière choisir après le bac littéraire&nbsp;?</a><span class="muted sm">96 réponses</span></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h4 class="card-title">Mentors suggérés</h4>
+        <div class="mentor-suggestion">
+          <div class="avatar avatar-md avatar-mentor">SK</div>
+          <div class="ms-info">
+            <div class="mentor-name sm">Samuel Koffi <span class="verified sm">✓</span></div>
+            <div class="muted sm">147 réponses · 4.8★</div>
+            <div class="chips-row"><span class="mini-chip">Tech</span><span class="mini-chip">Carrière</span></div>
+          </div>
+          <button class="btn-outline sm">+ Suivre</button>
+        </div>
+        <div class="mentor-suggestion">
+          <div class="avatar avatar-md avatar-mentor">DM</div>
+          <div class="ms-info">
+            <div class="mentor-name sm">Dr. Marie Touré <span class="verified sm">✓</span></div>
+            <div class="muted sm">89 réponses · 4.9★</div>
+            <div class="chips-row"><span class="mini-chip">Médecine</span></div>
+          </div>
+          <button class="btn-outline sm">+ Suivre</button>
+        </div>
+        <div class="mentor-suggestion">
+          <div class="avatar avatar-md avatar-mentor">AN</div>
+          <div class="ms-info">
+            <div class="mentor-name sm">Awa Ndiaye <span class="verified sm">✓</span></div>
+            <div class="muted sm">203 réponses · 4.7★</div>
+            <div class="chips-row"><span class="mini-chip">Finance</span></div>
+          </div>
+          <button class="btn-outline sm">+ Suivre</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- ============ SCREEN 2 : MENTOR PROFILE ============ -->
+<main id="screen-profile" class="screen">
+  <div class="profile-page">
+    <div class="card mentor-hero">
+      <div class="hero-cover"></div>
+      <div class="hero-body">
+        <div class="avatar avatar-xl avatar-mentor">SK</div>
+        <div class="hero-info">
+          <h1>Samuel Koffi <span class="verified">✓ Vérifié</span></h1>
+          <p class="muted">🇨🇮 Côte d'Ivoire · Lead Developer</p>
+          <div class="chips-row">
+            <span class="cat-chip cat-tech">Technologie</span>
+            <span class="cat-chip cat-fin">Carrière</span>
+            <span class="cat-chip cat-edu">Éducation</span>
+          </div>
+          <div class="availability"><span class="dot dot-green pulse"></span> Disponible pour mentorer</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary">✉ Envoyer un message</button>
+          <button class="btn-outline">+ Suivre</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div><strong>147</strong><span>Réponses</span></div>
+        <div><strong>4.8 ★</strong><span>Note moyenne</span></div>
+        <div><strong>2023</strong><span>Membre depuis</span></div>
+        <div><strong>2 840</strong><span>Personnes aidées</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">À propos</h3>
+      <p>Lead Developer avec 8 ans d'expérience dans la tech. J'ai démarré sans diplôme et j'aide aujourd'hui les jeunes africains à construire une carrière solide dans le développement logiciel. Spécialités : reconversion professionnelle, premier emploi tech, freelance.</p>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Réponses récentes</h3>
+      <article class="answer-item">
+        <h4>Comment commencer une carrière en développement web sans diplôme&nbsp;?</h4>
+        <p class="muted sm">Répondu il y a 2 h · 👍 42 utile</p>
+        <p>Excellente question. Concentre-toi sur 3 piliers : portfolio, open-source, réseautage...</p>
+      </article>
+      <article class="answer-item">
+        <h4>Vaut-il mieux apprendre React ou Vue.js en 2026&nbsp;?</h4>
+        <p class="muted sm">Répondu il y a 1 j · 👍 87 utile</p>
+        <p>Les deux sont d'excellents choix. Si ton objectif est l'employabilité rapide en Afrique de l'Ouest, React reste...</p>
+      </article>
+      <article class="answer-item">
+        <h4>Freelance ou CDI pour débuter&nbsp;?</h4>
+        <p class="muted sm">Répondu il y a 3 j · 👍 64 utile</p>
+        <p>Pour un premier poste, je recommande vivement le CDI : mentorat interne, processus, code review...</p>
+      </article>
+    </div>
+  </div>
+</main>
+
+<!-- ============ SCREEN 3 : ASK QUESTION ============ -->
+<main id="screen-ask" class="screen">
+  <div class="ask-page">
+    <div class="card">
+      <div class="modal-head">
+        <h2>Poser une question</h2>
+        <button class="close-btn" onclick="showScreen('feed')">✕</button>
+      </div>
+
+      <label class="form-label">Titre <span class="req">*</span></label>
+      <input type="text" class="form-input" placeholder="Résumez votre question en une phrase" value="Comment se préparer à un entretien dans une startup tech ?"/>
+
+      <label class="form-label">Description détaillée <span class="req">*</span></label>
+      <textarea class="form-textarea" placeholder="Décrivez votre situation en détail...">J'ai un entretien la semaine prochaine pour un poste de développeur junior. C'est ma première expérience avec une startup. Quels sont les pièges à éviter ?</textarea>
+
+      <label class="form-label">Catégorie <span class="req">*</span></label>
+      <div class="pill-select">
+        <button class="pill active">Technologie</button>
+        <button class="pill">Médecine</button>
+        <button class="pill">Droit</button>
+        <button class="pill">Finance</button>
+        <button class="pill">Arts</button>
+        <button class="pill">Éducation</button>
+        <button class="pill">Entrepreneuriat</button>
+        <button class="pill">Sciences</button>
+      </div>
+
+      <div class="similar-box">
+        <h4>💡 Avant de publier — questions similaires</h4>
+        <ul>
+          <li>
+            <strong>Comment réussir son premier entretien tech&nbsp;?</strong>
+            <span class="muted sm">12 réponses · 3 mentors</span>
+          </li>
+          <li>
+            <strong>Quelles questions poser au recruteur en fin d'entretien&nbsp;?</strong>
+            <span class="muted sm">8 réponses · 2 mentors</span>
+          </li>
+          <li>
+            <strong>Startup vs grande entreprise pour un premier emploi&nbsp;?</strong>
+            <span class="muted sm">24 réponses · 5 mentors</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-ghost" onclick="showScreen('feed')">Annuler</button>
+        <button class="btn-primary">Publier ma question</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ SCREEN 4 : ADMIN ============ -->
+<main id="screen-admin" class="screen">
+  <div class="admin-page">
+    <h1 class="page-title">Tableau de bord administrateur</h1>
+
+    <div class="kpi-grid">
+      <div class="card kpi"><span class="kpi-label">Total inscrits</span><span class="kpi-value">12 847</span><span class="kpi-delta up">▲ 8,2%</span></div>
+      <div class="card kpi"><span class="kpi-label">Questions postées</span><span class="kpi-value">3 421</span><span class="kpi-delta up">▲ 12%</span></div>
+      <div class="card kpi"><span class="kpi-label">Taux de réponse</span><span class="kpi-value">87%</span><span class="kpi-delta up">▲ 3,1%</span></div>
+      <div class="card kpi"><span class="kpi-label">Mentors actifs</span><span class="kpi-value">428</span><span class="kpi-delta down">▼ 1,4%</span></div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="card">
+        <h3 class="card-title">Vérifications de mentors en attente</h3>
+        <table class="admin-table">
+          <thead><tr><th>Mentor</th><th>Secteur</th><th>Pays</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="cell-user"><div class="avatar avatar-sm avatar-mentor">DM</div>Dr. Marie Touré</div></td>
+              <td>Médecine</td><td>🇸🇳 Sénégal</td>
+              <td><button class="btn-primary sm">Valider</button> <button class="btn-danger sm">Refuser</button></td>
+            </tr>
+            <tr>
+              <td><div class="cell-user"><div class="avatar avatar-sm avatar-mentor">PL</div>Paul Lemaire</div></td>
+              <td>Droit</td><td>🇫🇷 France</td>
+              <td><button class="btn-primary sm">Valider</button> <button class="btn-danger sm">Refuser</button></td>
+            </tr>
+            <tr>
+              <td><div class="cell-user"><div class="avatar avatar-sm avatar-mentor">KO</div>Kofi Owusu</div></td>
+              <td>Finance</td><td>🇬🇭 Ghana</td>
+              <td><button class="btn-primary sm">Valider</button> <button class="btn-danger sm">Refuser</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Signalements récents</h3>
+        <ul class="report-list">
+          <li>
+            <strong>Question hors-sujet</strong>
+            <p class="muted sm">"Vendez-vous des produits ?" — signalé 4×</p>
+            <div><button class="btn-ghost sm">Examiner</button><button class="btn-danger sm">Supprimer</button></div>
+          </li>
+          <li>
+            <strong>Contenu promotionnel</strong>
+            <p class="muted sm">Réponse contenant un lien commercial — signalé 2×</p>
+            <div><button class="btn-ghost sm">Examiner</button><button class="btn-danger sm">Supprimer</button></div>
+          </li>
+          <li>
+            <strong>Doublon</strong>
+            <p class="muted sm">"Comment apprendre Python ?" — déjà existant</p>
+            <div><button class="btn-ghost sm">Fusionner</button><button class="btn-danger sm">Supprimer</button></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
