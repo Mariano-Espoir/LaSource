@@ -1,399 +1,461 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>LaSource — La plateforme de mentorat pour la jeunesse</title>
-<link rel="stylesheet" href="styles.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentora — Plateforme de mentorat</title>
+  <meta name="description" content="Mentora met en relation étudiants et mentors expérimentés. Posez vos questions, partagez votre expertise." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ============ NAVBAR ============ -->
-<header class="navbar">
-  <div class="nav-inner">
-    <div class="logo">
-      <div class="logo-mark">L</div>
-      <div>
-        <div class="logo-text">LaSource</div>
-        <div class="logo-sub">Mentorat pour la jeunesse</div>
+<!-- ============================================================
+     ZONE DES TOASTS (notifications de confirmation)
+     ============================================================ -->
+<div class="toasts" id="zoneToasts"></div>
+
+<!-- ============================================================
+     VUE 1 — PAGE D'ACCUEIL (non connecté)
+     ============================================================ -->
+<section class="vue active" id="vue-accueil">
+  <div class="hero">
+    <nav class="hero-nav">
+      <div class="marque">LaSourc<span>e</span></div>
+      <div class="actions">
+        <button class="btn btn-secondaire" onclick="afficherVue('vue-connexion')">Se connecter</button>
+        <button class="btn btn-primaire" onclick="afficherVue('vue-inscription')">Créer un compte</button>
       </div>
-    </div>
-
-    <div class="search">
-      <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Rechercher une question, un mentor, un secteur..."/>
-    </div>
-
-    <nav class="nav-links">
-      <button class="nav-tab" data-screen="feed">Accueil</button>
-      <button class="nav-tab" data-screen="profile">Mentor</button>
-      <button class="nav-tab" data-screen="ask">Poser</button>
-      <button class="nav-tab" data-screen="admin">Admin</button>
-      <button class="icon-btn" title="Notifications">🔔<span class="badge">3</span></button>
-      <div class="avatar avatar-sm" title="Mon profil">AK</div>
     </nav>
-  </div>
-</header>
-
-<!-- ============ SCREEN 1 : HOME FEED ============ -->
-<main id="screen-feed" class="screen active">
-  <div class="layout-3col">
-
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar-left">
-      <div class="card profile-card">
-        <div class="profile-cover"></div>
-        <div class="avatar avatar-lg">AK</div>
-        <h3>Aïcha Kouassi</h3>
-        <p class="muted">🇨🇮 Côte d'Ivoire</p>
-        <span class="level-chip">Niveau 3 · Étudiante</span>
-        <div class="profile-stats">
-          <div><strong>12</strong><span>Questions</span></div>
-          <div><strong>48</strong><span>Réponses</span></div>
-          <div><strong>156</strong><span>Utile</span></div>
+    <div class="hero-contenu">
+      <div>
+        <h1>Apprenez de ceux qui ont <em>déjà tracé la voie</em>.</h1>
+        <p class="intro">
+          LaSource connecte étudiants et mentors professionnels du monde entier.
+          Posez vos questions, obtenez des conseils personnalisés et avancez plus vite dans votre parcours.
+        </p>
+        <div class="cta">
+          <button class="btn btn-primaire" onclick="afficherVue('vue-inscription')">Rejoindre Mentora →</button>
+          <button class="btn btn-secondaire" onclick="afficherVue('vue-connexion')">J'ai déjà un compte</button>
+        </div>
+        <div class="stats-hero">
+          <div><strong>2 400+</strong><span>Étudiants actifs</span></div>
+          <div><strong>380+</strong><span>Mentors vérifiés</span></div>
+          <div><strong>9 secteurs</strong><span>De spécialisation</span></div>
         </div>
       </div>
-
-      <div class="card">
-        <h4 class="card-title">Secteurs suivis</h4>
-        <ul class="sector-list">
-          <li><span class="dot dot-blue"></span>Technologie <span class="count">128</span></li>
-          <li><span class="dot dot-green"></span>Médecine <span class="count">87</span></li>
-          <li><span class="dot dot-orange"></span>Finance <span class="count">42</span></li>
-          <li><span class="dot dot-purple"></span>Éducation <span class="count">35</span></li>
-          <li><span class="dot dot-red"></span>Droit <span class="count">21</span></li>
-        </ul>
-        <button class="btn-ghost btn-block">+ Ajouter un secteur</button>
-      </div>
-    </aside>
-
-    <!-- MAIN FEED -->
-    <section class="feed">
-      <!-- Ask trigger -->
-      <div class="card ask-trigger" onclick="showScreen('ask')">
-        <div class="avatar avatar-sm">AK</div>
-        <div class="ask-input">Quelle est votre question aujourd'hui&nbsp;?</div>
-        <button class="btn-primary">Poser</button>
-      </div>
-
-      <!-- Filter bar -->
-      <div class="filter-bar">
-        <div class="tabs">
-          <button class="tab active">Les plus récentes</button>
-          <button class="tab">Les plus populaires</button>
-          <button class="tab">Sans réponse</button>
+      <div class="hero-illu">
+        <div class="mini-q">
+          <strong>Comment décrocher un stage en finance à Londres ?</strong>
+          <p>Sophie M. — Étudiante en M1 Finance · 8 réponses</p>
         </div>
-        <div class="filters">
-          <select><option>🌍 Tous les pays</option><option>Côte d'Ivoire</option><option>Sénégal</option><option>France</option></select>
-          <select><option>Tous les secteurs</option><option>Technologie</option><option>Médecine</option><option>Droit</option></select>
+        <div class="mini-q">
+          <strong>Faut-il un doctorat pour faire de la recherche en IA ?</strong>
+          <p>Karim B. — Étudiant en informatique · 12 réponses</p>
         </div>
-      </div>
-
-      <!-- Question card 1 (with mentor answer) -->
-      <article class="card question-card">
-        <header class="q-head">
-          <div class="avatar avatar-md">MD</div>
-          <div>
-            <div class="q-user">Mariam Diallo <span class="level-chip sm">Niveau 2</span></div>
-            <div class="muted sm">🇸🇳 Sénégal · il y a 2 h</div>
-          </div>
-          <span class="cat-chip cat-tech">Technologie</span>
-        </header>
-        <h2 class="q-title">Comment commencer une carrière en développement web sans diplôme&nbsp;?</h2>
-        <p class="q-body">Je suis autodidacte et je connais HTML, CSS et un peu de JavaScript. Quels sont les étapes concrètes pour décrocher mon premier emploi&nbsp;?</p>
-
-        <!-- Mentor answer -->
-        <div class="mentor-answer">
-          <div class="mentor-head">
-            <div class="avatar avatar-sm avatar-mentor">SK</div>
-            <div>
-              <div class="mentor-name">Samuel Koffi <span class="verified">✓ Mentor vérifié</span></div>
-              <div class="muted sm">Lead Developer · 8 ans d'expérience</div>
-            </div>
-          </div>
-          <p>Excellente question. Concentre-toi sur 3 piliers : 1) construire un portfolio de 3 projets concrets, 2) contribuer à de l'open-source, 3) réseauter sur LinkedIn. La plupart des entreprises tech valorisent la preuve par le code avant le diplôme...</p>
-          <button class="link-btn">Lire la réponse complète →</button>
+        <div class="mini-q">
+          <strong>Lancer une SaaS sans co-fondateur, est-ce viable ?</strong>
+          <p>Léa T. — Étudiante en entrepreneuriat · 5 réponses</p>
         </div>
-
-        <footer class="q-footer">
-          <button class="action-btn">👍 Utile <strong>42</strong></button>
-          <button class="action-btn">💬 <strong>7</strong> réponses</button>
-          <button class="action-btn">🔖 Sauvegarder</button>
-          <button class="action-btn">↗ Partager</button>
-        </footer>
-      </article>
-
-      <!-- Question card 2 -->
-      <article class="card question-card">
-        <header class="q-head">
-          <div class="avatar avatar-md">JN</div>
-          <div>
-            <div class="q-user">Jean N'Guessan <span class="level-chip sm">Niveau 1</span></div>
-            <div class="muted sm">🇨🇮 Côte d'Ivoire · il y a 5 h</div>
-          </div>
-          <span class="cat-chip cat-med">Médecine</span>
-        </header>
-        <h2 class="q-title">Médecine ou pharmacie : que choisir après le bac scientifique&nbsp;?</h2>
-        <p class="q-body">J'hésite entre les deux voies. J'aimerais avoir l'avis de professionnels sur les débouchés réels dans nos pays.</p>
-        <footer class="q-footer">
-          <button class="action-btn">👍 Utile <strong>28</strong></button>
-          <button class="action-btn">💬 <strong>3</strong> réponses</button>
-          <button class="action-btn">🔖 Sauvegarder</button>
-          <button class="action-btn">↗ Partager</button>
-        </footer>
-      </article>
-
-      <!-- Question card 3 -->
-      <article class="card question-card">
-        <header class="q-head">
-          <div class="avatar avatar-md">FB</div>
-          <div>
-            <div class="q-user">Fatou Bâ <span class="level-chip sm">Niveau 4</span></div>
-            <div class="muted sm">🇸🇳 Sénégal · il y a 8 h</div>
-          </div>
-          <span class="cat-chip cat-fin">Finance</span>
-        </header>
-        <h2 class="q-title">Comment économiser quand on a un petit salaire en début de carrière&nbsp;?</h2>
-        <p class="q-body">Je gagne 180 000 FCFA/mois. Quelles habitudes adopter dès maintenant pour bâtir une épargne solide&nbsp;?</p>
-
-        <div class="mentor-answer">
-          <div class="mentor-head">
-            <div class="avatar avatar-sm avatar-mentor">AN</div>
-            <div>
-              <div class="mentor-name">Awa Ndiaye <span class="verified">✓ Mentor vérifié</span></div>
-              <div class="muted sm">Conseillère financière</div>
-            </div>
-          </div>
-          <p>Règle simple à appliquer : 50/30/20. 50% besoins essentiels, 30% plaisirs, 20% épargne automatique en début de mois...</p>
-          <button class="link-btn">Lire la réponse complète →</button>
-        </div>
-
-        <footer class="q-footer">
-          <button class="action-btn">👍 Utile <strong>91</strong></button>
-          <button class="action-btn">💬 <strong>12</strong> réponses</button>
-          <button class="action-btn">🔖 Sauvegarder</button>
-          <button class="action-btn">↗ Partager</button>
-        </footer>
-      </article>
-    </section>
-
-    <!-- RIGHT SIDEBAR -->
-    <aside class="sidebar-right">
-      <div class="card">
-        <h4 class="card-title">🔥 Questions tendance</h4>
-        <ol class="trending">
-          <li><a>Faut-il faire ses études à l'étranger en 2026&nbsp;?</a><span class="muted sm">214 réponses</span></li>
-          <li><a>Comment lancer une startup sans capital&nbsp;?</a><span class="muted sm">178 réponses</span></li>
-          <li><a>L'IA va-t-elle remplacer les juristes&nbsp;?</a><span class="muted sm">142 réponses</span></li>
-          <li><a>Quelle filière choisir après le bac littéraire&nbsp;?</a><span class="muted sm">96 réponses</span></li>
-        </ol>
-      </div>
-
-      <div class="card">
-        <h4 class="card-title">Mentors suggérés</h4>
-        <div class="mentor-suggestion">
-          <div class="avatar avatar-md avatar-mentor">SK</div>
-          <div class="ms-info">
-            <div class="mentor-name sm">Samuel Koffi <span class="verified sm">✓</span></div>
-            <div class="muted sm">147 réponses · 4.8★</div>
-            <div class="chips-row"><span class="mini-chip">Tech</span><span class="mini-chip">Carrière</span></div>
-          </div>
-          <button class="btn-outline sm">+ Suivre</button>
-        </div>
-        <div class="mentor-suggestion">
-          <div class="avatar avatar-md avatar-mentor">DM</div>
-          <div class="ms-info">
-            <div class="mentor-name sm">Dr. Marie Touré <span class="verified sm">✓</span></div>
-            <div class="muted sm">89 réponses · 4.9★</div>
-            <div class="chips-row"><span class="mini-chip">Médecine</span></div>
-          </div>
-          <button class="btn-outline sm">+ Suivre</button>
-        </div>
-        <div class="mentor-suggestion">
-          <div class="avatar avatar-md avatar-mentor">AN</div>
-          <div class="ms-info">
-            <div class="mentor-name sm">Awa Ndiaye <span class="verified sm">✓</span></div>
-            <div class="muted sm">203 réponses · 4.7★</div>
-            <div class="chips-row"><span class="mini-chip">Finance</span></div>
-          </div>
-          <button class="btn-outline sm">+ Suivre</button>
-        </div>
-      </div>
-    </aside>
-  </div>
-</main>
-
-<!-- ============ SCREEN 2 : MENTOR PROFILE ============ -->
-<main id="screen-profile" class="screen">
-  <div class="profile-page">
-    <div class="card mentor-hero">
-      <div class="hero-cover"></div>
-      <div class="hero-body">
-        <div class="avatar avatar-xl avatar-mentor">SK</div>
-        <div class="hero-info">
-          <h1>Samuel Koffi <span class="verified">✓ Vérifié</span></h1>
-          <p class="muted">🇨🇮 Côte d'Ivoire · Lead Developer</p>
-          <div class="chips-row">
-            <span class="cat-chip cat-tech">Technologie</span>
-            <span class="cat-chip cat-fin">Carrière</span>
-            <span class="cat-chip cat-edu">Éducation</span>
-          </div>
-          <div class="availability"><span class="dot dot-green pulse"></span> Disponible pour mentorer</div>
-        </div>
-        <div class="hero-actions">
-          <button class="btn-primary">✉ Envoyer un message</button>
-          <button class="btn-outline">+ Suivre</button>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <div><strong>147</strong><span>Réponses</span></div>
-        <div><strong>4.8 ★</strong><span>Note moyenne</span></div>
-        <div><strong>2023</strong><span>Membre depuis</span></div>
-        <div><strong>2 840</strong><span>Personnes aidées</span></div>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="card">
-      <h3 class="card-title">À propos</h3>
-      <p>Lead Developer avec 8 ans d'expérience dans la tech. J'ai démarré sans diplôme et j'aide aujourd'hui les jeunes africains à construire une carrière solide dans le développement logiciel. Spécialités : reconversion professionnelle, premier emploi tech, freelance.</p>
-    </div>
+<!-- ============================================================
+     VUE 2 — CONNEXION
+     ============================================================ -->
+<section class="vue" id="vue-connexion">
+  <div class="page-auth">
+    <div class="boite-auth">
+      <div class="logo-auth"><div class="marque">Mentor<span>a</span></div></div>
+      <h1>Bienvenue</h1>
+      <p class="sous-titre">Connectez-vous pour accéder à votre espace</p>
 
-    <div class="card">
-      <h3 class="card-title">Réponses récentes</h3>
-      <article class="answer-item">
-        <h4>Comment commencer une carrière en développement web sans diplôme&nbsp;?</h4>
-        <p class="muted sm">Répondu il y a 2 h · 👍 42 utile</p>
-        <p>Excellente question. Concentre-toi sur 3 piliers : portfolio, open-source, réseautage...</p>
-      </article>
-      <article class="answer-item">
-        <h4>Vaut-il mieux apprendre React ou Vue.js en 2026&nbsp;?</h4>
-        <p class="muted sm">Répondu il y a 1 j · 👍 87 utile</p>
-        <p>Les deux sont d'excellents choix. Si ton objectif est l'employabilité rapide en Afrique de l'Ouest, React reste...</p>
-      </article>
-      <article class="answer-item">
-        <h4>Freelance ou CDI pour débuter&nbsp;?</h4>
-        <p class="muted sm">Répondu il y a 3 j · 👍 64 utile</p>
-        <p>Pour un premier poste, je recommande vivement le CDI : mentorat interne, processus, code review...</p>
-      </article>
+      <button class="btn-social" onclick="seConnecter()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuer avec Google
+      </button>
+      <button class="btn-social" onclick="seConnecter()">
+        <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M19 0h-14C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V8h3v11zM6.5 6.73c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zM20 19h-3v-5.6c0-3.37-4-3.11-4 0V19h-3V8h3v1.76c1.4-2.58 7-2.78 7 2.47V19z"/></svg>
+        Continuer avec LinkedIn
+      </button>
+
+      <div class="sep-ou">ou avec votre e-mail</div>
+
+      <div class="champ">
+        <label>Adresse e-mail</label>
+        <input type="email" id="email-conn" placeholder="vous@exemple.com" />
+      </div>
+      <div class="champ">
+        <label>Mot de passe</label>
+        <input type="password" id="mdp-conn" placeholder="••••••••" />
+      </div>
+      <div style="text-align:right; margin-bottom: 16px;">
+        <a href="#" onclick="afficherVue('vue-oubli'); return false;">Mot de passe oublié ?</a>
+      </div>
+      <button class="btn btn-primaire btn-bloc" onclick="seConnecter()">Se connecter</button>
+      <p class="lien-bas">Pas encore de compte ? <a href="#" onclick="afficherVue('vue-inscription'); return false;">Créer un compte</a></p>
     </div>
   </div>
-</main>
+</section>
 
-<!-- ============ SCREEN 3 : ASK QUESTION ============ -->
-<main id="screen-ask" class="screen">
-  <div class="ask-page">
-    <div class="card">
-      <div class="modal-head">
-        <h2>Poser une question</h2>
-        <button class="close-btn" onclick="showScreen('feed')">✕</button>
+<!-- ============================================================
+     VUE 3 — INSCRIPTION
+     ============================================================ -->
+<section class="vue" id="vue-inscription">
+  <div class="page-auth">
+    <div class="boite-auth">
+      <div class="logo-auth"><div class="marque">Mentor<span>a</span></div></div>
+      <h1>Créer un compte</h1>
+      <p class="sous-titre">Choisissez votre profil pour commencer</p>
+
+      <div class="choix-roles">
+        <div class="carte-role actif" data-role="etudiant" onclick="choisirRole(this, 'etudiant')">
+          <span class="emoji">🎓</span>
+          <strong>Étudiant</strong>
+          <span>Je cherche des conseils</span>
+        </div>
+        <div class="carte-role" data-role="mentor" onclick="choisirRole(this, 'mentor')">
+          <span class="emoji">🏆</span>
+          <strong>Mentor</strong>
+          <span>Je partage mon expertise</span>
+        </div>
       </div>
 
-      <label class="form-label">Titre <span class="req">*</span></label>
-      <input type="text" class="form-input" placeholder="Résumez votre question en une phrase" value="Comment se préparer à un entretien dans une startup tech ?"/>
+      <div class="champs-cote">
+        <div class="champ"><label>Prénom</label><input type="text" id="prenom-ins" placeholder="Marie" /></div>
+        <div class="champ"><label>Nom</label><input type="text" id="nom-ins" placeholder="Dupont" /></div>
+      </div>
+      <div class="champ"><label>Adresse e-mail</label><input type="email" id="email-ins" placeholder="vous@exemple.com" /></div>
+      <div class="champ"><label>Mot de passe</label><input type="password" id="mdp-ins" placeholder="Au moins 8 caractères" /></div>
+      <div class="champ"><label>Confirmation du mot de passe</label><input type="password" id="mdp2-ins" placeholder="Retapez votre mot de passe" /></div>
 
-      <label class="form-label">Description détaillée <span class="req">*</span></label>
-      <textarea class="form-textarea" placeholder="Décrivez votre situation en détail...">J'ai un entretien la semaine prochaine pour un poste de développeur junior. C'est ma première expérience avec une startup. Quels sont les pièges à éviter ?</textarea>
+      <button class="btn btn-primaire btn-bloc" onclick="commencerOnboarding()">Continuer →</button>
 
-      <label class="form-label">Catégorie <span class="req">*</span></label>
-      <div class="pill-select">
-        <button class="pill active">Technologie</button>
-        <button class="pill">Médecine</button>
-        <button class="pill">Droit</button>
-        <button class="pill">Finance</button>
-        <button class="pill">Arts</button>
-        <button class="pill">Éducation</button>
-        <button class="pill">Entrepreneuriat</button>
-        <button class="pill">Sciences</button>
+      <div class="sep-ou">ou</div>
+      <button class="btn-social" onclick="commencerOnboarding()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuer avec Google
+      </button>
+      <button class="btn-social" onclick="commencerOnboarding()">
+        <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M19 0h-14C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V8h3v11zM6.5 6.73c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zM20 19h-3v-5.6c0-3.37-4-3.11-4 0V19h-3V8h3v1.76c1.4-2.58 7-2.78 7 2.47V19z"/></svg>
+        Continuer avec LinkedIn
+      </button>
+
+      <p class="lien-bas">Vous avez déjà un compte ? <a href="#" onclick="afficherVue('vue-connexion'); return false;">Se connecter</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VUE 4 — MOT DE PASSE OUBLIÉ
+     ============================================================ -->
+<section class="vue" id="vue-oubli">
+  <div class="page-auth">
+    <div class="boite-auth">
+      <div class="logo-auth"><div class="marque">Mentor<span>a</span></div></div>
+      <h1>Mot de passe oublié</h1>
+      <p class="sous-titre">Saisissez votre e-mail, nous vous enverrons un lien de réinitialisation.</p>
+      <div class="champ"><label>Adresse e-mail</label><input type="email" placeholder="vous@exemple.com" /></div>
+      <button class="btn btn-primaire btn-bloc" onclick="toast('Lien de réinitialisation envoyé par e-mail.'); afficherVue('vue-connexion')">Envoyer le lien</button>
+      <p class="lien-bas"><a href="#" onclick="afficherVue('vue-connexion'); return false;">← Retour à la connexion</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VUE 5 — ONBOARDING (4 étapes)
+     ============================================================ -->
+<section class="vue" id="vue-onboarding">
+  <div class="page-auth">
+    <div class="boite-auth" style="max-width:560px;">
+      <div class="barre-prog">
+        <div class="etape fait" id="ob-e1"></div>
+        <div class="etape" id="ob-e2"></div>
+        <div class="etape" id="ob-e3"></div>
+        <div class="etape" id="ob-e4"></div>
+      </div>
+      <div class="etapes-info"><span>Étape <strong id="ob-num">1</strong>/4</span><span id="ob-label">Informations de base</span></div>
+
+      <!-- Étape 1 -->
+      <div class="etape-contenu" id="etape-1">
+        <h2 style="font-size:1.5rem; margin-bottom:14px;">Parlez-nous de vous</h2>
+        <div class="champ"><label>Pays</label>
+          <select><option>France</option><option>Belgique</option><option>Suisse</option><option>Canada</option><option>Sénégal</option><option>Maroc</option></select>
+        </div>
+        <div class="champ"><label>Niveau d'études / Profession</label>
+          <input type="text" placeholder="Ex : Master 2 — École Polytechnique" />
+        </div>
+        <div class="champ"><label>Courte présentation</label>
+          <textarea placeholder="Quelques mots sur vous (facultatif)"></textarea>
+        </div>
       </div>
 
-      <div class="similar-box">
-        <h4>💡 Avant de publier — questions similaires</h4>
-        <ul>
-          <li>
-            <strong>Comment réussir son premier entretien tech&nbsp;?</strong>
-            <span class="muted sm">12 réponses · 3 mentors</span>
-          </li>
-          <li>
-            <strong>Quelles questions poser au recruteur en fin d'entretien&nbsp;?</strong>
-            <span class="muted sm">8 réponses · 2 mentors</span>
-          </li>
-          <li>
-            <strong>Startup vs grande entreprise pour un premier emploi&nbsp;?</strong>
-            <span class="muted sm">24 réponses · 5 mentors</span>
-          </li>
+      <!-- Étape 2 -->
+      <div class="etape-contenu" id="etape-2" style="display:none;">
+        <h2 style="font-size:1.5rem; margin-bottom:6px;">Vos secteurs d'intérêt</h2>
+        <p style="color:var(--texte-doux); font-size:13px; margin-bottom:14px;">Choisissez au moins 2 secteurs pour personnaliser votre fil.</p>
+        <div class="chips-select">
+          <div class="chip-select" onclick="toggleChip(this)">Technologie</div>
+          <div class="chip-select" onclick="toggleChip(this)">Médecine</div>
+          <div class="chip-select" onclick="toggleChip(this)">Droit</div>
+          <div class="chip-select" onclick="toggleChip(this)">Finance</div>
+          <div class="chip-select" onclick="toggleChip(this)">Arts</div>
+          <div class="chip-select" onclick="toggleChip(this)">Éducation</div>
+          <div class="chip-select" onclick="toggleChip(this)">Ingénierie</div>
+          <div class="chip-select" onclick="toggleChip(this)">Entrepreneuriat</div>
+          <div class="chip-select" onclick="toggleChip(this)">Autre</div>
+        </div>
+      </div>
+
+      <!-- Étape 3 -->
+      <div class="etape-contenu" id="etape-3" style="display:none;">
+        <h2 style="font-size:1.5rem; margin-bottom:14px;">Votre photo de profil</h2>
+        <div style="display:flex; align-items:center; gap:20px;">
+          <div class="avatar avatar-l">MD</div>
+          <div>
+            <button class="btn btn-secondaire">📷 Téléverser une photo</button>
+            <p style="font-size:12px; color:var(--texte-doux); margin-top:8px;">JPG ou PNG, max 2 Mo. Optionnel.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étape 4 -->
+      <div class="etape-contenu" id="etape-4" style="display:none;">
+        <h2 style="font-size:1.5rem; margin-bottom:14px;">Bienvenue sur Mentora 🎉</h2>
+        <p style="margin-bottom:12px;">Vous êtes prêt(e) à explorer la plateforme. Voici quelques fonctionnalités clés :</p>
+        <ul style="padding-left:20px; color:var(--texte-doux); font-size:14px; line-height:1.8;">
+          <li>📚 Parcourez le fil de questions par secteur</li>
+          <li>💬 Échangez par messagerie privée avec les mentors</li>
+          <li>🔔 Recevez des notifications pour les nouvelles réponses</li>
+          <li>⭐ Notez les réponses pour aider la communauté</li>
         </ul>
       </div>
 
-      <div class="form-actions">
-        <button class="btn-ghost" onclick="showScreen('feed')">Annuler</button>
-        <button class="btn-primary">Publier ma question</button>
+      <div style="display:flex; justify-content:space-between; margin-top:24px;">
+        <button class="btn btn-secondaire" id="ob-prec" onclick="naviguerEtape(-1)" disabled>← Précédent</button>
+        <button class="btn btn-primaire" id="ob-suiv" onclick="naviguerEtape(1)">Suivant →</button>
       </div>
     </div>
   </div>
-</main>
+</section>
 
-<!-- ============ SCREEN 4 : ADMIN ============ -->
-<main id="screen-admin" class="screen">
-  <div class="admin-page">
-    <h1 class="page-title">Tableau de bord administrateur</h1>
-
-    <div class="kpi-grid">
-      <div class="card kpi"><span class="kpi-label">Total inscrits</span><span class="kpi-value">12 847</span><span class="kpi-delta up">▲ 8,2%</span></div>
-      <div class="card kpi"><span class="kpi-label">Questions postées</span><span class="kpi-value">3 421</span><span class="kpi-delta up">▲ 12%</span></div>
-      <div class="card kpi"><span class="kpi-label">Taux de réponse</span><span class="kpi-value">87%</span><span class="kpi-delta up">▲ 3,1%</span></div>
-      <div class="card kpi"><span class="kpi-label">Mentors actifs</span><span class="kpi-value">428</span><span class="kpi-delta down">▼ 1,4%</span></div>
+<!-- ============================================================
+     APPLICATION CONNECTÉE — NAVBAR + VUES
+     ============================================================ -->
+<section class="vue" id="vue-app">
+  <nav class="navbar">
+    <div class="marque" style="cursor:pointer;" onclick="naviguerApp('fil')">LaSourc<span>e</span></div>
+    <div class="nav-recherche">
+      <input type="text" placeholder="Rechercher mentors, questions, secteurs…" id="recherche-glob" oninput="rechercher(this.value)" onfocus="rechercher(this.value)" onblur="setTimeout(() => document.getElementById('dropRech').classList.remove('ouvert'), 200)" />
+      <div class="dropdown-recherche" id="dropRech"></div>
     </div>
-
-    <div class="admin-grid">
-      <div class="card">
-        <h3 class="card-title">Vérifications de mentors en attente</h3>
-        <table class="admin-table">
-          <thead><tr><th>Mentor</th><th>Secteur</th><th>Pays</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr>
-              <td><div class="cell-user"><div class="avatar avatar-sm avatar-mentor">DM</div>Dr. Marie Touré</div></td>
-              <td>Médecine</td><td>🇸🇳 Sénégal</td>
-              <td><button class="btn-primary sm">Valider</button> <button class="btn-danger sm">Refuser</button></td>
-            </tr>
-            <tr>
-              <td><div class="cell-user"><div class="avatar avatar-sm avatar-mentor">PL</div>Paul Lemaire</div></td>
-              <td>Droit</td><td>🇫🇷 France</td>
-              <td><button class="btn-primary sm">Valider</button> <button class="btn-danger sm">Refuser</button></td>
-            </tr>
-            <tr>
-              <td><div class="cell-user"><div class="avatar avatar-sm avatar-mentor">KO</div>Kofi Owusu</div></td>
-              <td>Finance</td><td>🇬🇭 Ghana</td>
-              <td><button class="btn-primary sm">Valider</button> <button class="btn-danger sm">Refuser</button></td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="nav-liens">
+      <button class="nav-bouton" onclick="naviguerApp('fil')" title="Accueil">Accueil</button>
+      <button class="nav-bouton" onclick="naviguerApp('messages')" title="Messages">
+      Messages<span class="badge-notif" id="badge-msg">3</span>
+      </button>
+      <button class="nav-bouton" onclick="basculerNotifs()" title="Notifications">
+      Notifications<span class="badge-notif" id="badge-notif">4</span>
+      </button>
+      <div class="nav-profil" onclick="basculerMenuProfil()">
+        <div class="avatar avatar-s" id="avatar-nav">MD</div>
+        <span style="font-size:14px;">▾</span>
       </div>
+    </div>
+  </nav>
 
-      <div class="card">
-        <h3 class="card-title">Signalements récents</h3>
-        <ul class="report-list">
-          <li>
-            <strong>Question hors-sujet</strong>
-            <p class="muted sm">"Vendez-vous des produits ?" — signalé 4×</p>
-            <div><button class="btn-ghost sm">Examiner</button><button class="btn-danger sm">Supprimer</button></div>
-          </li>
-          <li>
-            <strong>Contenu promotionnel</strong>
-            <p class="muted sm">Réponse contenant un lien commercial — signalé 2×</p>
-            <div><button class="btn-ghost sm">Examiner</button><button class="btn-danger sm">Supprimer</button></div>
-          </li>
-          <li>
-            <strong>Doublon</strong>
-            <p class="muted sm">"Comment apprendre Python ?" — déjà existant</p>
-            <div><button class="btn-ghost sm">Fusionner</button><button class="btn-danger sm">Supprimer</button></div>
-          </li>
+  <div class="menu-profil" id="menuProfil">
+    <button onclick="naviguerApp('profil')">👤 Mon profil</button>
+    <button onclick="naviguerApp('parametres')">⚙️ Paramètres</button>
+    <button onclick="naviguerApp('admin')" id="lien-admin">🛡️ Administration</button>
+    <button onclick="seDeconnecter()" style="color:var(--rouge);">🚪 Se déconnecter</button>
+  </div>
+
+  <div class="panneau-notifs" id="panneauNotifs">
+    <header>
+      <strong>Notifications</strong>
+      <button class="btn-fantome btn-petit" onclick="toutMarquerLu()">Tout marquer comme lu</button>
+    </header>
+    <div id="liste-notifs"></div>
+  </div>
+
+  <!-- Sous-vue : Fil d'actualité -->
+  <div class="sous-vue active" id="sv-fil">
+    <div class="layout-3col">
+      <aside class="col-gauche">
+        <div class="carte profil-sidebar" id="sidebar-profil"></div>
+        <div class="carte" style="margin-top:16px;">
+          <div class="carte-titre">Mes secteurs</div>
+          <div id="mes-secteurs" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+        </div>
+        <div class="carte" style="margin-top:16px;">
+          <div class="carte-titre">Mentors suivis</div>
+          <div class="liste-suivis" id="mentors-suivis"></div>
+        </div>
+      </aside>
+
+      <main class="col-centre">
+        <div class="publier-vide" onclick="ouvrirModal('modalPublier')">
+          <div class="avatar avatar-s" id="avatar-fil">MD</div>
+          <input type="text" placeholder="Quelle est votre question aujourd'hui ?" readonly />
+          <button class="btn btn-primaire btn-petit">Publier</button>
+        </div>
+        <div class="filtres">
+          <div class="onglets">
+            <div class="onglet actif" data-tri="recent" onclick="changerTri(this, 'recent')">Les plus récentes</div>
+            <div class="onglet" data-tri="populaire" onclick="changerTri(this, 'populaire')">Les plus populaires</div>
+            <div class="onglet" data-tri="sansrep" onclick="changerTri(this, 'sansrep')">Sans réponse</div>
+          </div>
+          <select id="filtre-secteur" onchange="rendreFil()">
+            <option value="">Tous les secteurs</option>
+            <option>Technologie</option><option>Médecine</option><option>Droit</option>
+            <option>Finance</option><option>Arts</option><option>Éducation</option>
+            <option>Ingénierie</option><option>Entrepreneuriat</option>
+          </select>
+        </div>
+        <div id="fil-questions"></div>
+      </main>
+
+      <aside class="col-droite">
+        <div class="carte">
+          <div class="carte-titre"> Questions tendance</div>
+          <ul class="questions-tendance" id="questions-tendance"></ul>
+        </div>
+        <div class="carte" style="margin-top:16px;">
+          <div class="carte-titre"> Mentors suggérés</div>
+          <ul class="mentors-suggeres" id="mentors-suggeres"></ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Sous-vue : Profil utilisateur -->
+  <div class="sous-vue" id="sv-profil" style="display:none;">
+    <div style="max-width:1100px; margin:20px auto; padding:0 20px;">
+      <div class="banniere"></div>
+      <div class="entete-profil" id="entete-profil"></div>
+      <div class="tabs-profil" id="tabs-profil"></div>
+      <div id="contenu-profil"></div>
+    </div>
+  </div>
+
+  <!-- Sous-vue : Messagerie -->
+  <div class="sous-vue" id="sv-messages" style="display:none;">
+    <div class="messagerie">
+      <div class="liste-conv">
+        <h3>Conversations</h3>
+        <div id="liste-conversations"></div>
+      </div>
+      <div class="zone-chat" id="zone-chat">
+        <div class="etat-vide" style="margin:auto;">
+          <div class="illu">💬</div>
+          <h3>Sélectionnez une conversation</h3>
+          <p>Choisissez un contact à gauche pour commencer à discuter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sous-vue : Paramètres -->
+  <div class="sous-vue" id="sv-parametres" style="display:none;">
+    <div class="layout-2col">
+      <aside class="menu-cote" id="menu-param">
+        <button class="actif" data-pan="compte" onclick="changerPanParam(this, 'compte')">👤 Mon compte</button>
+        <button data-pan="notifs" onclick="changerPanParam(this, 'notifs')">🔔 Notifications</button>
+        <button data-pan="securite" onclick="changerPanParam(this, 'securite')">🔒 Sécurité</button>
+        <button data-pan="confid" onclick="changerPanParam(this, 'confid')">🛡️ Confidentialité</button>
+      </aside>
+      <main id="contenu-param"></main>
+    </div>
+  </div>
+
+  <!-- Sous-vue : Administration -->
+  <div class="sous-vue" id="sv-admin" style="display:none;">
+    <div class="layout-admin">
+      <aside class="menu-admin">
+        <h4>Administration</h4>
+        <button class="actif" data-adm="dashboard" onclick="changerPanAdmin(this, 'dashboard')">📊 Tableau de bord</button>
+        <button data-adm="users" onclick="changerPanAdmin(this, 'users')">👥 Utilisateurs</button>
+        <button data-adm="mentors" onclick="changerPanAdmin(this, 'mentors')">✓ Validation mentors</button>
+        <button data-adm="signalements" onclick="changerPanAdmin(this, 'signalements')">🚩 Signalements</button>
+        <button data-adm="categories" onclick="changerPanAdmin(this, 'categories')">🏷️ Catégories</button>
+      </aside>
+      <main class="contenu-admin" id="contenu-admin"></main>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MODALES
+     ============================================================ -->
+
+<!-- Modal : Publier une question -->
+<div class="modal-overlay" id="modalPublier">
+  <div class="modal">
+    <header>
+      <h3>Poser une question</h3>
+      <span class="fermer" onclick="fermerModal('modalPublier')">×</span>
+    </header>
+    <div class="corps">
+      <div class="champ">
+        <label>Titre</label>
+        <input type="text" id="q-titre" maxlength="120" placeholder="Résumez votre question en une phrase claire…" oninput="majCompteur()" />
+        <div class="compteur-car"><span id="compteur">0</span>/120</div>
+      </div>
+      <div class="champ">
+        <label>Détails</label>
+        <textarea id="q-corps" rows="5" placeholder="Décrivez votre situation en détail : contexte, contraintes, ce que vous avez déjà essayé…"></textarea>
+      </div>
+      <div class="champ">
+        <label>Catégorie</label>
+        <div class="chips-select" id="chips-cat">
+          <div class="chip-select" onclick="choisirCat(this)">Technologie</div>
+          <div class="chip-select" onclick="choisirCat(this)">Médecine</div>
+          <div class="chip-select" onclick="choisirCat(this)">Droit</div>
+          <div class="chip-select" onclick="choisirCat(this)">Finance</div>
+          <div class="chip-select" onclick="choisirCat(this)">Arts</div>
+          <div class="chip-select" onclick="choisirCat(this)">Éducation</div>
+          <div class="chip-select" onclick="choisirCat(this)">Ingénierie</div>
+          <div class="chip-select" onclick="choisirCat(this)">Entrepreneuriat</div>
+          <div class="chip-select" onclick="choisirCat(this)">Autre</div>
+        </div>
+      </div>
+      <div class="similaires">
+        <h5>Avant de publier — questions similaires :</h5>
+        <ul id="liste-similaires">
+          <li>• Comment se reconvertir vers le développement web ?</li>
+          <li>• Quel master choisir après une licence d'informatique ?</li>
         </ul>
       </div>
     </div>
+    <div class="pied">
+      <button class="btn btn-secondaire" onclick="fermerModal('modalPublier')">Annuler</button>
+      <button class="btn btn-primaire" onclick="publierQuestion()">Publier ma question →</button>
+    </div>
   </div>
-</main>
+</div>
+
+<!-- Modal : Nouveau message -->
+<div class="modal-overlay" id="modalMessage">
+  <div class="modal" style="max-width:480px;">
+    <header>
+      <h3>Nouveau message</h3>
+      <span class="fermer" onclick="fermerModal('modalMessage')">×</span>
+    </header>
+    <div class="corps">
+      <div class="champ"><label>Destinataire</label><input type="text" id="dest-msg" placeholder="Nom du mentor" /></div>
+      <div class="champ"><label>Votre message</label><textarea id="contenu-msg" rows="4" placeholder="Bonjour…"></textarea></div>
+    </div>
+    <div class="pied">
+      <button class="btn btn-secondaire" onclick="fermerModal('modalMessage')">Annuler</button>
+      <button class="btn btn-primaire" onclick="envoyerNouveauMsg()">Envoyer</button>
+    </div>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
