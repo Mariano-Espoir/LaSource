@@ -317,7 +317,7 @@ function carteQuestionHTML(q) {
       <p class="q-corps">${q.corps}</p>
       <div class="q-tags"><span class="tag">${q.secteur}</span></div>
       <div class="q-pied">
-        <button class="btn-utile${utileActif}" onclick="basculerUtileQ(${q.id})" aria-label="Marquer comme utile">${iconePouce()}<span class="cnt">${q.utile}</span><span class="lbl">${etat.utilesQ.has(q.id) ? 'Marqué utile' : 'Utile'}</span></button>
+        <button class="btn-utile${utileActif}" onclick="basculerUtileQ(${q.id})" aria-label="Marquer comme utile">${iconePouce()}<span class="cnt">${q.utile}</span><span class="lbl">${etat.utilesQ.has(q.id) ? 'Aimé' : 'Utile'}</span></button>
         <button onclick="ouvrirQuestion(${q.id})">💬 ${q.repCount} réponses</button>
         <button class="bouton-sauver${saveActif}" onclick="basculerSauver(${q.id})" title="Sauvegarder">${etat.sauvegardees.has(q.id) ? '🔖 Sauvegardée' : '🔖 Sauvegarder'}</button>
         <button class="repondre btn btn-secondaire btn-petit" onclick="ouvrirQuestion(${q.id})">Voir / Répondre</button>
