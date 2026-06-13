@@ -212,11 +212,21 @@ function televerserPhotoCompte() {
   declencherSelectionPhoto((dataUrl) => {
     etat.utilisateur.photo = dataUrl;
     toast('Photo mise à jour.');
-    changerPanParam(document.querySelector('#menu-param button.actif'), 'compte');
-    document.getElementById('avatar-nav').innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
-    document.getElementById('avatar-fil').innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
+    const panParam = document.querySelector('#menu-param button.actif');
+    if (panParam) changerPanParam(panParam, 'compte');
+    const navAv = document.getElementById('avatar-nav');
+    const filAv = document.getElementById('avatar-fil');
+    if (navAv) navAv.innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
+    if (filAv) filAv.innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
     rendreSidebarProfil();
+    // Mettre à jour la page profil (cercle au-dessus du nom) si on y est
+    if (etat.sectionActive === 'profil') { profilCible = null; rendreProfil(); }
   });
+}
+
+/* Icône "pouce" type Facebook (utilisée pour le bouton Utile) */
+function iconePouce() {
+  return `<svg class="icone-pouce" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 10h3.6c.22 0 .4.18.4.4V21.6c0 .22-.18.4-.4.4H2c-.55 0-1-.45-1-1v-10c0-.55.45-1 1-1zm6 0h1.05L13.2 3.6c.42-.7 1.34-.95 2.05-.55.55.31.83.94.7 1.56L14.9 9h5.6c1.1 0 2 .9 2 2v1.18c0 .26-.05.52-.15.76l-3 7.06c-.32.74-1.05 1.22-1.85 1.22H8c-.55 0-1-.45-1-1V11c0-.55.45-1 1-1z"/></svg>`;
 }
 
 /* ============================================================
@@ -307,7 +317,7 @@ function carteQuestionHTML(q) {
       <p class="q-corps">${q.corps}</p>
       <div class="q-tags"><span class="tag">${q.secteur}</span></div>
       <div class="q-pied">
-        <button class="${utileActif.trim()}" onclick="basculerUtileQ(${q.id})">👍 <span>${q.utile}</span> ${etat.utilesQ.has(q.id) ? 'Marqué utile' : 'Utile'}</button>
+        <button class="btn-utile${utileActif}" onclick="basculerUtileQ(${q.id})" aria-label="Marquer comme utile">${iconePouce()}<span class="cnt">${q.utile}</span><span class="lbl">${etat.utilesQ.has(q.id) ? 'Marqué utile' : 'Utile'}</span></button>
         <button onclick="ouvrirQuestion(${q.id})">💬 ${q.repCount} réponses</button>
         <button class="bouton-sauver${saveActif}" onclick="basculerSauver(${q.id})" title="Sauvegarder">${etat.sauvegardees.has(q.id) ? '🔖 Sauvegardée' : '🔖 Sauvegarder'}</button>
         <button class="repondre btn btn-secondaire btn-petit" onclick="ouvrirQuestion(${q.id})">Voir / Répondre</button>
@@ -371,7 +381,7 @@ function ouvrirQuestion(id) {
       <p class="q-corps">${q.corps}</p>
       <div class="q-tags"><span class="tag">${q.secteur}</span></div>
       <div class="q-pied">
-        <button class="${utileActif.trim()}" onclick="basculerUtileQ(${q.id})">👍 <span>${q.utile}</span> ${etat.utilesQ.has(q.id) ? 'Vous avez aimé' : 'Utile'}</button>
+        <button class="btn-utile${utileActif}" onclick="basculerUtileQ(${q.id})">${iconePouce()}<span class="cnt">${q.utile}</span><span class="lbl">${etat.utilesQ.has(q.id) ? 'Vous avez aimé' : 'Utile'}</span></button>
         <button class="bouton-sauver${saveActif}" onclick="basculerSauver(${q.id})">${etat.sauvegardees.has(q.id) ? '🔖 Sauvegardée' : '🔖 Sauvegarder'}</button>
       </div>
       <div class="reponses" style="display:flex; flex-direction:column;">
@@ -399,14 +409,20 @@ function reponseHTML(r) {
       <div class="r-entete">${avatarHTML(r.init, 's')}<div class="info"><strong>${r.auteur}</strong> ${badge}</div></div>
       <p>${r.contenu}</p>
       <div class="actions">
-        <button onclick="utileR(this)">👍 ${r.utile} Utile</button>
+        <button class="btn-utile" onclick="utileR(this)">${iconePouce()}<span class="cnt">${r.utile}</span><span class="lbl">Utile</span></button>
         ${etoiles}
       </div>
       ${sous}
     </div>`;
 }
 
-function utileR(btn) { toast('Réponse marquée comme utile.'); }
+function utileR(btn) {
+  const actif = btn.classList.toggle('actif');
+  const cnt = btn.querySelector('.cnt');
+  const n = parseInt(cnt.textContent, 10) || 0;
+  cnt.textContent = actif ? n + 1 : Math.max(0, n - 1);
+  toast(actif ? 'Réponse marquée comme utile.' : 'Marque retirée.');
+}
 function noter(elem, n) {
   const conteneur = elem.parentElement;
   [...conteneur.children].forEach((c, i) => c.classList.toggle('vide', i >= n));
