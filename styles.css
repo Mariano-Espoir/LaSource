@@ -700,3 +700,117 @@ label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; c
 @media (max-width: 720px) {
   .btn-recherche { width: 34px; height: 34px; flex-basis: 34px; }
 }
+
+/* ============================================================
+   BOUTON "UTILE" — style "J'aime" Facebook (remplissage vert au clic)
+   ============================================================ */
+.btn-utile {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  background: transparent; color: var(--texte-doux);
+  border: 1px solid transparent;
+  font-size: 13px; font-weight: 500;
+  transition: background .2s ease, color .2s ease, transform .1s ease;
+}
+.btn-utile:hover { background: var(--fond); color: var(--texte); }
+.btn-utile:active { transform: scale(.96); }
+.btn-utile .icone-pouce {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linejoin: round;
+  transition: fill .25s ease, stroke .25s ease, transform .25s ease;
+}
+.btn-utile.actif { color: var(--vert); background: rgba(22,163,74,.08); }
+.btn-utile.actif .icone-pouce {
+  fill: var(--vert); stroke: var(--vert);
+  animation: pop-utile .35s cubic-bezier(.34,1.56,.64,1);
+}
+.btn-utile .cnt { font-variant-numeric: tabular-nums; }
+@keyframes pop-utile {
+  0%   { transform: scale(.7) rotate(-12deg); }
+  60%  { transform: scale(1.25) rotate(6deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* ============================================================
+   RESPONSIVE — tablette, mobile, petit mobile
+   ============================================================ */
+@media (max-width: 900px) {
+  .navbar { padding: 0 14px; gap: 12px; }
+  .nav-recherche { max-width: 100%; }
+  .hero-nav { padding: 16px 6%; flex-wrap: wrap; gap: 12px; }
+  .hero-contenu { padding: 40px 6% 60px; gap: 30px; }
+  .hero h1 { font-size: 2.4rem; }
+  .stats-hero { flex-wrap: wrap; gap: 16px; }
+  .filtres { flex-direction: column; align-items: stretch; }
+  .filtres select { width: 100%; }
+  .panneau-notifs { width: calc(100vw - 32px); right: 16px; }
+  .menu-profil { right: 12px; }
+  .modal { max-width: 92vw; }
+  .messagerie { height: auto; }
+  .entete-profil .infos { margin-left: 110px; }
+}
+
+@media (max-width: 720px) {
+  .nav-recherche { display: none; }
+  .navbar { padding: 0 12px; gap: 8px; height: 60px; }
+  .navbar .marque { font-size: 18px; }
+  .layout-3col, .layout-2col { padding: 14px; gap: 14px; }
+  .hero h1 { font-size: 2rem; }
+  .hero p.intro { font-size: 1rem; }
+  .hero-illu { padding: 18px; }
+  .messagerie { grid-template-columns: 1fr; height: auto; }
+  .liste-conv { max-height: 240px; }
+  .entete-profil { padding-top: 70px; }
+  .entete-profil .infos { margin-left: 0; width: 100%; }
+  .entete-profil .actions { width: 100%; flex-wrap: wrap; }
+  .tabs-profil { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .tabs-profil::-webkit-scrollbar { display: none; }
+  .tab-profil { flex-shrink: 0; }
+}
+
+@media (max-width: 600px) {
+  body { font-size: 14px; }
+  .boite-auth { padding: 24px 20px; }
+  .boite-auth h1 { font-size: 1.45rem; }
+  .hero h1 { font-size: 1.85rem; }
+  .hero .cta { flex-direction: column; }
+  .hero .cta .btn { width: 100%; }
+  .hero-nav .actions { gap: 8px; }
+  .hero-nav .actions .btn { padding: 8px 12px; font-size: 13px; }
+  .nav-liens { gap: 2px; }
+  .nav-bouton { width: 36px; height: 36px; font-size: 16px; }
+  .nav-profil { padding: 4px; gap: 4px; }
+  .nav-profil span { display: none; }
+  .modal .corps, .modal header, .modal .pied { padding: 14px 16px; }
+  .modal header h3 { font-size: 1.1rem; }
+  .modal .pied { flex-wrap: wrap; }
+  .modal .pied .btn { flex: 1; }
+  .carte-question { padding: 14px; }
+  .q-pied { flex-wrap: wrap; gap: 8px; }
+  .q-pied .repondre { margin-left: 0; width: 100%; }
+  .toasts { left: 12px; right: 12px; top: 70px; }
+  .toast { min-width: 0; width: 100%; }
+  .chat-messages { padding: 14px; }
+  .bulle { max-width: 85%; }
+  .chat-saisie { padding: 10px; }
+  .entete-profil { padding: 70px 18px 18px; }
+  .entete-profil h2 { font-size: 1.45rem; }
+  .entete-profil .avatar-xl { width: 100px; height: 100px; font-size: 32px; top: -50px; }
+  .banniere { height: 140px; margin-bottom: -50px; }
+}
+
+@media (max-width: 420px) {
+  .hero h1 { font-size: 1.6rem; }
+  .hero-nav { padding: 12px 16px; }
+  .hero-nav .marque { font-size: 18px; }
+  .hero-contenu { padding: 24px 16px 50px; }
+  .boite-auth { padding: 20px 16px; }
+  .champs-cote { grid-template-columns: 1fr; }
+  .stats-hero { gap: 12px; }
+  .stats-hero div strong { font-size: 1.4rem; }
+  .btn { padding: 9px 14px; font-size: 13px; }
+}
+
+/* Avatar : remplir parfaitement avec la photo téléversée */
+.avatar img.photo-avatar { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
