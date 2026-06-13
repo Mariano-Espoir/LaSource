@@ -1,6 +1,5 @@
 /* =========================================================
-   Plateforme de Mentorat — Logique applicative (vanilla JS)
-   Aucune dépendance externe. Données de démo en mémoire.
+   LaSource — Logique applicative (vanilla JS)
    ========================================================= */
 
 /* ---------- État global ---------- */
@@ -11,14 +10,19 @@ const etat = {
     bio: "Étudiante curieuse, passionnée par la finance durable et l'entrepreneuriat à impact.",
     secteurs: ['Finance', 'Entrepreneuriat', 'Technologie'],
     estAdmin: true,
-    questionsPosees: 12, mentorsSuivis: 5
+    questionsPosees: 12, mentorsSuivis: 5,
+    photo: null // base64 dataURL
   },
   tri: 'recent',
   categorieChoisie: null,
   roleChoisi: 'etudiant',
   etapeOnboarding: 1,
-  conversationActive: null,
-  ongletProfil: 'questions'
+  ongletProfil: 'questions',
+  utilesQ: new Set(),       // ids des questions marquées utiles par moi
+  sauvegardees: new Set(),  // ids des questions sauvegardées
+  suivis: new Set(),        // ids des mentors suivis
+  rechercheTerme: '',
+  sectionActive: 'fil'
 };
 
 /* ---------- Données de démonstration ---------- */
@@ -65,58 +69,52 @@ const questions = [
     corps: "Bonjour, je suis en M1 finance à Dauphine. Je vise des stages M&A en banque d'affaires à Londres mais je ne suis pas dans une école cible (HEC, ESSEC…). Quels sont les leviers concrets pour passer les filtres CV des grandes banques ?",
     secteur: 'Finance', auteur: 'Sophie M.', initiales:'SM', pays:'France', temps:'il y a 2 h', utile: 24, repCount: 5,
     reponses: [
-      { auteur:'Sophie Lambert', init:'SL', mentor:true, verifie:true, contenu:"Excellente question. Plusieurs leviers : 1) Networking intensif sur LinkedIn (vise 30 cafés virtuels avec des analysts ex-Dauphine). 2) Spring weeks dès la L3. 3) Off-cycles plutôt que summer (moins compétitifs). 4) Maîtrise impeccable de la modélisation financière (Wall Street Prep). N'hésite pas à m'envoyer ton CV.", utile:18, etoiles:5,
-        sousReponses:[{ auteur:'Sophie M.', init:'SM', contenu:'Merci beaucoup pour ces conseils ! Je vais commencer dès la semaine prochaine.', utile:3 }]},
-      { auteur:'Marc L.', init:'ML', mentor:false, contenu:"J'ai vécu la même situation l'an dernier, j'ai fini par décrocher un off-cycle chez Lazard via un cousin. Le piston existe encore !", utile:6 }
+      { auteur:'Sophie Lambert', init:'SL', mentorId:1, mentor:true, verifie:true, contenu:"Excellente question. Plusieurs leviers : 1) Networking intensif sur LinkedIn. 2) Spring weeks dès la L3. 3) Off-cycles plutôt que summer. 4) Maîtrise impeccable de la modélisation financière.", utile:18, etoiles:5,
+        sousReponses:[{ auteur:'Sophie M.', init:'SM', contenu:'Merci beaucoup pour ces conseils !', utile:3 }]},
+      { auteur:'Marc L.', init:'ML', mentor:false, contenu:"J'ai vécu la même situation l'an dernier, j'ai fini par décrocher un off-cycle chez Lazard.", utile:6 }
     ]},
   { id: 2, titre: "Faut-il un doctorat pour faire de la recherche en IA dans l'industrie ?",
-    corps: "Je suis en master 2 informatique et je m'interroge : doctorat académique long, ou aller direct en industrie comme research engineer ? Les portes restent-elles ouvertes sans PhD ?",
+    corps: "Je suis en master 2 informatique et je m'interroge : doctorat académique long, ou aller direct en industrie comme research engineer ?",
     secteur: 'Technologie', auteur: 'Karim B.', initiales:'KB', pays:'Maroc', temps:'il y a 5 h', utile: 42, repCount: 12,
     reponses: [
-      { auteur:'Karim Benali', init:'KB', mentor:true, verifie:true, contenu:"Réponse honnête : pour les rôles de Research Scientist (Meta AI, DeepMind), le PhD est quasi indispensable. Pour Research Engineer, beaucoup d'opportunités sans PhD si tu publies sur arXiv, contribues à des projets open source, et maîtrises PyTorch en profondeur.", utile:28, etoiles:5 }
+      { auteur:'Karim Benali', init:'KB', mentorId:2, mentor:true, verifie:true, contenu:"Pour les rôles de Research Scientist, le PhD est quasi indispensable. Pour Research Engineer, beaucoup d'opportunités sans PhD si tu publies sur arXiv et maîtrises PyTorch.", utile:28, etoiles:5 }
     ]},
   { id: 3, titre: "Reconversion à 30 ans vers le développement web : par où commencer ?",
-    corps: "Ancien commercial, je veux pivoter vers le dev web full-stack. Bootcamp, autodidacte, ou retour à l'université ? Quelle voie a le meilleur ratio temps/employabilité ?",
+    corps: "Ancien commercial, je veux pivoter vers le dev web full-stack. Bootcamp, autodidacte, ou retour à l'université ?",
     secteur: 'Technologie', auteur: 'Julien P.', initiales:'JP', pays:'France', temps:'il y a 1 jour', utile: 19, repCount: 8, reponses: [] },
   { id: 4, titre: "Lancer une SaaS B2B sans co-fondateur technique, c'est viable ?",
-    corps: "Profil business, j'ai une idée validée par 30 entretiens clients. Faut-il absolument trouver un CTO ou puis-je démarrer en no-code/avec une agence ?",
+    corps: "Profil business, j'ai une idée validée par 30 entretiens clients. Faut-il absolument trouver un CTO ?",
     secteur: 'Entrepreneuriat', auteur: 'Léa T.', initiales:'LT', pays:'France', temps:'il y a 1 jour', utile: 31, repCount: 9,
     reponses: [
-      { auteur:'Thomas Martin', init:'TM', mentor:true, verifie:false, contenu:"100% viable. Beaucoup de SaaS à 7 chiffres ont démarré en no-code (Bubble, Webflow + Airtable). Le vrai risque n'est pas technique, c'est de scaler trop vite sans architecture. Démarre simple, valide, puis recrute.", utile:22, etoiles:4 }
+      { auteur:'Thomas Martin', init:'TM', mentorId:4, mentor:true, verifie:false, contenu:"100% viable. Beaucoup de SaaS à 7 chiffres ont démarré en no-code. Le vrai risque n'est pas technique, c'est de scaler trop vite.", utile:22, etoiles:4 }
     ]},
   { id: 5, titre: "Internat de médecine en Belgique pour un étudiant français : démarches ?",
-    corps: "Je passe les ECN bientôt. La Belgique est-elle une alternative crédible si je n'ai pas la spécialité voulue ? Quelles équivalences ?",
+    corps: "Je passe les ECN bientôt. La Belgique est-elle une alternative crédible ?",
     secteur: 'Médecine', auteur: 'Camille R.', initiales:'CR', pays:'France', temps:'il y a 3 jours', utile: 14, repCount: 4, reponses:[] },
   { id: 6, titre: "Comment construire un portfolio juridique solide en sortie d'école ?",
-    corps: "Sortie de M2 Droit des affaires. Beaucoup de théorie, peu de pratique concrète à valoriser. Comment se démarquer auprès des cabinets ?",
+    corps: "Sortie de M2 Droit des affaires. Beaucoup de théorie, peu de pratique concrète. Comment se démarquer ?",
     secteur: 'Droit', auteur: 'Hugo D.', initiales:'HD', pays:'France', temps:'il y a 4 jours', utile: 9, repCount: 2, reponses:[] }
 ];
 
-const conversations = [
-  { id: 1, avec: 'Sophie Lambert', init:'SL', dernier: "Avec plaisir, envoie-moi ton CV par message.", heure:'14:32', nonLu: true,
-    messages: [
-      { de:'Sophie Lambert', contenu:'Bonjour Marie, j\'ai vu votre question sur les stages M&A.', heure:'14:20', recu:true },
-      { de:'moi', contenu:'Bonjour Sophie ! Merci d\'avoir pris le temps de répondre.', heure:'14:25', recu:false, statut:'Lu ✓✓' },
-      { de:'Sophie Lambert', contenu:'Avec plaisir, envoie-moi ton CV par message.', heure:'14:32', recu:true }
-    ]},
-  { id: 2, avec: 'Karim Benali', init:'KB', dernier:"Je te recommande de commencer par les MOOC de Stanford.", heure:'Hier', nonLu: true,
-    messages:[{ de:'Karim Benali', contenu:'Je te recommande de commencer par les MOOC de Stanford.', heure:'18:40', recu:true }]},
-  { id: 3, avec: 'Fatou Diop', init:'FD', dernier:'Tu peux candidater dès septembre.', heure:'Lundi', nonLu: true,
-    messages:[{ de:'Fatou Diop', contenu:'Tu peux candidater dès septembre.', heure:'10:15', recu:true }]},
-  { id: 4, avec: 'Amélie Rousseau', init:'AR', dernier:'Bon courage pour ton concours !', heure:'12 mars', nonLu: false,
-    messages:[{ de:'Amélie Rousseau', contenu:'Bon courage pour ton concours !', heure:'09:00', recu:true }]}
+const notifications = [
+  { texte:'Sophie Lambert a répondu à votre question "Comment décrocher un stage en M&A…"', temps:'il y a 1 h', nonLu:true, questionId:1 },
+  { texte:'Karim Benali a marqué votre réponse comme utile', temps:'il y a 3 h', nonLu:true, questionId:2 },
+  { texte:'Vous avez un nouvel abonné : Hugo Dupont', temps:'il y a 6 h', nonLu:true },
+  { texte:'Nouvelle question dans Finance : "Banque d\'affaires à 35 ans ?"', temps:'hier', nonLu:true, questionId:1 },
+  { texte:'Thomas Martin a répondu à votre question sur les SaaS B2B', temps:'il y a 2 jours', nonLu:false, questionId:4 }
 ];
 
-const notifications = [
-  { icone:'🟦', texte:'Sophie Lambert a répondu à votre question "Comment décrocher un stage en M&A…"', temps:'il y a 1 h', nonLu:true },
-  { icone:'❤️', texte:'Karim Benali a marqué votre réponse comme utile', temps:'il y a 3 h', nonLu:true },
-  { icone:'👤', texte:'Vous avez un nouvel abonné : Hugo Dupont', temps:'il y a 6 h', nonLu:true },
-  { icone:'📌', texte:'Nouvelle question dans Finance : "Banque d\'affaires à 35 ans ?"', temps:'hier', nonLu:true },
-  { icone:'🟦', texte:'Thomas Martin a répondu à votre question sur les SaaS B2B', temps:'il y a 2 jours', nonLu:false }
-];
+/* ---------- Helpers avatar (photo ou initiales) ---------- */
+function avatarHTML(initiales, taille = '', photo = null) {
+  const cls = 'avatar' + (taille ? ' avatar-' + taille : '');
+  if (photo) return `<div class="${cls}"><img src="${photo}" class="photo-avatar" alt=""></div>`;
+  return `<div class="${cls}">${initiales}</div>`;
+}
+function monAvatarHTML(taille = '') { return avatarHTML(etat.utilisateur.initiales, taille, etat.utilisateur.photo); }
+function estMentor() { return etat.utilisateur.role === 'mentor'; }
 
 /* ============================================================
-   NAVIGATION ENTRE VUES (auth vs app)
+   NAVIGATION
    ============================================================ */
 function afficherVue(id) {
   document.querySelectorAll('.vue').forEach(v => v.classList.remove('active'));
@@ -126,53 +124,44 @@ function afficherVue(id) {
 
 function naviguerApp(panneau) {
   document.querySelectorAll('.sous-vue').forEach(sv => sv.style.display = 'none');
-  document.getElementById('sv-' + panneau).style.display = 'block';
+  const cible = document.getElementById('sv-' + panneau);
+  if (cible) cible.style.display = 'block';
   document.getElementById('menuProfil').classList.remove('ouvert');
+  etat.sectionActive = panneau;
+  majNavActif();
   if (panneau === 'fil') rendreFil();
   if (panneau === 'profil') rendreProfil();
-  if (panneau === 'messages') rendreMessagerie();
   if (panneau === 'parametres') changerPanParam(document.querySelector('#menu-param button.actif'), 'compte');
   if (panneau === 'admin') changerPanAdmin(document.querySelector('.menu-admin button.actif'), 'dashboard');
 }
 
+function majNavActif() {
+  document.querySelectorAll('.nav-bouton').forEach(b => {
+    b.classList.toggle('actif', b.dataset.section === etat.sectionActive);
+  });
+}
+
 /* ============================================================
-   AUTHENTIFICATION
+   AUTHENTIFICATION & ONBOARDING
    ============================================================ */
 function choisirRole(elem, role) {
   document.querySelectorAll('.carte-role').forEach(c => c.classList.remove('actif'));
   elem.classList.add('actif');
   etat.roleChoisi = role;
 }
-
-function seConnecter() {
-  toast('Connexion réussie. Bienvenue !');
-  afficherVue('vue-app');
-  initApp();
-}
-
-function commencerOnboarding() {
-  etat.etapeOnboarding = 1;
-  majEtapeOnboarding();
-  afficherVue('vue-onboarding');
-}
-
+function seConnecter() { toast('Connexion réussie. Bienvenue !'); afficherVue('vue-app'); initApp(); }
+function commencerOnboarding() { etat.etapeOnboarding = 1; majEtapeOnboarding(); afficherVue('vue-onboarding'); }
 function naviguerEtape(delta) {
   const nouv = etat.etapeOnboarding + delta;
   if (nouv < 1) return;
-  if (nouv > 4) {
-    toast('Inscription terminée. Bienvenue sur LaSource !');
-    afficherVue('vue-app');
-    initApp();
-    return;
-  }
+  if (nouv > 4) { toast('Inscription terminée. Bienvenue sur LaSource !'); afficherVue('vue-app'); initApp(); return; }
   etat.etapeOnboarding = nouv;
   majEtapeOnboarding();
 }
-
 function majEtapeOnboarding() {
   const e = etat.etapeOnboarding;
   const labels = ['Informations de base', "Secteurs d'intérêt", 'Photo de profil', 'Découverte de la plateforme'];
-  for (let i=1; i<=4; i++) {
+  for (let i = 1; i <= 4; i++) {
     document.getElementById('ob-e'+i).classList.toggle('fait', i <= e);
     document.getElementById('etape-'+i).style.display = (i === e) ? 'block' : 'none';
   }
@@ -180,10 +169,22 @@ function majEtapeOnboarding() {
   document.getElementById('ob-label').textContent = labels[e-1];
   document.getElementById('ob-prec').disabled = (e === 1);
   document.getElementById('ob-suiv').textContent = (e === 4) ? "Accéder à la plateforme →" : 'Suivant →';
+  // Brancher le bouton photo de l'étape 3
+  const etape3 = document.getElementById('etape-3');
+  if (etape3 && !etape3.dataset.cable) {
+    etape3.dataset.cable = '1';
+    const btn = etape3.querySelector('button');
+    if (btn) {
+      btn.onclick = () => declencherSelectionPhoto((dataUrl) => {
+        etat.utilisateur.photo = dataUrl;
+        const av = etape3.querySelector('.avatar');
+        av.innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
+        toast('Photo de profil ajoutée.');
+      });
+    }
+  }
 }
-
 function toggleChip(elem) { elem.classList.toggle('actif'); }
-
 function seDeconnecter() {
   document.getElementById('menuProfil').classList.remove('ouvert');
   toast('Vous avez été déconnecté(e).');
@@ -191,16 +192,46 @@ function seDeconnecter() {
 }
 
 /* ============================================================
-   INITIALISATION DE L'APP
+   PHOTO DE PROFIL (utilitaire)
+   ============================================================ */
+function declencherSelectionPhoto(callback) {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0];
+    if (!f) return;
+    if (f.size > 3 * 1024 * 1024) return toast('Image trop volumineuse (max 3 Mo).', 'erreur');
+    const r = new FileReader();
+    r.onload = () => callback(r.result);
+    r.readAsDataURL(f);
+  };
+  inp.click();
+}
+function televerserPhotoCompte() {
+  declencherSelectionPhoto((dataUrl) => {
+    etat.utilisateur.photo = dataUrl;
+    toast('Photo mise à jour.');
+    changerPanParam(document.querySelector('#menu-param button.actif'), 'compte');
+    document.getElementById('avatar-nav').innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
+    document.getElementById('avatar-fil').innerHTML = `<img src="${dataUrl}" class="photo-avatar" alt="">`;
+    rendreSidebarProfil();
+  });
+}
+
+/* ============================================================
+   INITIALISATION
    ============================================================ */
 function initApp() {
-  document.getElementById('avatar-nav').textContent = etat.utilisateur.initiales;
-  document.getElementById('avatar-fil').textContent = etat.utilisateur.initiales;
+  document.getElementById('avatar-nav').innerHTML = etat.utilisateur.photo
+    ? `<img src="${etat.utilisateur.photo}" class="photo-avatar" alt="">` : etat.utilisateur.initiales;
+  document.getElementById('avatar-fil').innerHTML = document.getElementById('avatar-nav').innerHTML;
   document.getElementById('lien-admin').style.display = etat.utilisateur.estAdmin ? 'flex' : 'none';
   rendreSidebarProfil();
   rendreFil();
   rendreColonneDroite();
   rendreNotifications();
+  majNavActif();
 }
 
 /* ============================================================
@@ -209,7 +240,7 @@ function initApp() {
 function rendreSidebarProfil() {
   const u = etat.utilisateur;
   document.getElementById('sidebar-profil').innerHTML = `
-    <div class="avatar avatar-l">${u.initiales}</div>
+    ${avatarHTML(u.initiales, 'l', u.photo)}
     <div class="nom">${u.prenom} ${u.nom}</div>
     <span class="badge-role">${u.role === 'mentor' ? '🏆 Mentor' : '🎓 Étudiant'}</span>
     <div class="meta">📍 ${u.pays}</div>
@@ -223,13 +254,13 @@ function rendreSidebarProfil() {
   document.getElementById('mentors-suivis').innerHTML =
     mentors.slice(0, 4).map(m => `
       <div class="suivi-item" onclick="ouvrirProfilMentor(${m.id})">
-        <div class="avatar avatar-s">${m.initiales}</div>
+        ${avatarHTML(m.initiales, 's')}
         <div class="info"><strong>${m.prenom} ${m.nom}</strong><span>${m.secteur}</span></div>
       </div>`).join('');
 }
 
 /* ============================================================
-   FIL D'ACTUALITE (col centre)
+   FIL D'ACTUALITÉ
    ============================================================ */
 function changerTri(elem, tri) {
   document.querySelectorAll('.onglet').forEach(o => o.classList.remove('actif'));
@@ -242,41 +273,114 @@ function rendreFil() {
   const pays = document.getElementById('filtre-pays')?.value || '';
   const sect = document.getElementById('filtre-secteur')?.value || '';
   let liste = questions.filter(q => (!pays || q.pays === pays) && (!sect || q.secteur === sect));
+  if (etat.rechercheTerme) {
+    const t = etat.rechercheTerme.toLowerCase();
+    liste = liste.filter(q => q.titre.toLowerCase().includes(t) || q.corps.toLowerCase().includes(t) || q.secteur.toLowerCase().includes(t));
+  }
   if (etat.tri === 'populaire') liste.sort((a, b) => b.utile - a.utile);
   if (etat.tri === 'sansrep') liste = liste.filter(q => q.reponses.length === 0);
 
   const conteneur = document.getElementById('fil-questions');
+  const banniere = etat.rechercheTerme
+    ? `<div class="carte" style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+         <span>Résultats pour <strong>« ${etat.rechercheTerme} »</strong> — ${liste.length} question(s)</span>
+         <button class="btn btn-fantome btn-petit" onclick="effacerRecherche()">✕ Effacer</button>
+       </div>` : '';
   if (!liste.length) {
-    conteneur.innerHTML = `<div class="etat-vide carte"><div class="illu">🌱</div><h3>Aucune question pour ces filtres</h3><p>Essayez d'élargir vos critères ou soyez le premier à poser une question !</p></div>`;
+    conteneur.innerHTML = banniere + `<div class="etat-vide carte"><div class="illu">🌱</div><h3>Aucune question pour ces critères</h3><p>Essayez d'élargir vos filtres ou soyez le premier à poser une question !</p></div>`;
     return;
   }
-  conteneur.innerHTML = liste.map(q => carteQuestionHTML(q)).join('');
+  conteneur.innerHTML = banniere + liste.map(q => carteQuestionHTML(q)).join('');
 }
 
 function carteQuestionHTML(q) {
+  const utileActif = etat.utilesQ.has(q.id) ? ' actif' : '';
+  const saveActif = etat.sauvegardees.has(q.id) ? ' actif' : '';
   return `
     <article class="carte-question" data-id="${q.id}">
       <div class="q-entete">
-        <div class="avatar avatar-s">${q.initiales}</div>
+        ${avatarHTML(q.initiales, 's')}
         <div class="info"><strong>${q.auteur}</strong> · <span>${q.pays}</span><time>${q.temps}</time></div>
         <button class="btn-fantome btn-petit" title="Signaler" onclick="signaler(${q.id})">⚐</button>
       </div>
-      <h3 class="q-titre" onclick="basculerReponses(${q.id})">${q.titre}</h3>
+      <h3 class="q-titre" style="cursor:pointer;" onclick="ouvrirQuestion(${q.id})">${q.titre}</h3>
       <p class="q-corps">${q.corps}</p>
       <div class="q-tags"><span class="tag">${q.secteur}</span></div>
       <div class="q-pied">
-        <button onclick="marquerUtileQ(${q.id})">👍 ${q.utile} Utile</button>
-        <button onclick="basculerReponses(${q.id})">💬 ${q.repCount} réponses</button>
-        <button class="repondre btn btn-secondaire btn-petit" onclick="basculerReponses(${q.id})">Répondre</button>
-      </div>
-      <div class="reponses" id="rep-${q.id}" style="display:none;">
-        ${q.reponses.map(r => reponseHTML(r)).join('') || '<p style="color:var(--texte-doux); font-size:14px;">Soyez le premier à répondre.</p>'}
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <input type="text" placeholder="Écrire une réponse…" id="rep-input-${q.id}" />
-          <button class="btn btn-primaire btn-petit" onclick="ajouterReponse(${q.id})">Envoyer</button>
-        </div>
+        <button class="${utileActif.trim()}" onclick="basculerUtileQ(${q.id})">👍 <span>${q.utile}</span> ${etat.utilesQ.has(q.id) ? 'Marqué utile' : 'Utile'}</button>
+        <button onclick="ouvrirQuestion(${q.id})">💬 ${q.repCount} réponses</button>
+        <button class="bouton-sauver${saveActif}" onclick="basculerSauver(${q.id})" title="Sauvegarder">${etat.sauvegardees.has(q.id) ? '🔖 Sauvegardée' : '🔖 Sauvegarder'}</button>
+        <button class="repondre btn btn-secondaire btn-petit" onclick="ouvrirQuestion(${q.id})">Voir / Répondre</button>
       </div>
     </article>`;
+}
+
+/* ----- Bouton "utile" : 1 clic = j'aime, 2e clic = annulé ----- */
+function basculerUtileQ(id) {
+  const q = questions.find(x => x.id === id); if (!q) return;
+  if (etat.utilesQ.has(id)) {
+    etat.utilesQ.delete(id); q.utile = Math.max(0, q.utile - 1);
+    toast('Marque retirée.');
+  } else {
+    etat.utilesQ.add(id); q.utile++;
+    toast('Marqué comme utile.');
+  }
+  rendreCourant();
+}
+
+function basculerSauver(id) {
+  if (etat.sauvegardees.has(id)) { etat.sauvegardees.delete(id); toast('Retirée de vos sauvegardes.'); }
+  else { etat.sauvegardees.add(id); toast('Question sauvegardée.'); }
+  rendreCourant();
+}
+
+function rendreCourant() {
+  if (etat.sectionActive === 'fil') rendreFil();
+  else if (etat.sectionActive === 'profil') rendreProfil();
+  else if (etat.sectionActive === 'question') { const id = parseInt(document.getElementById('sv-question').dataset.qid); if (id) ouvrirQuestion(id); }
+  rendreColonneDroite();
+}
+
+/* ----- Ouvrir une question en pleine vue ----- */
+function ouvrirQuestion(id) {
+  const q = questions.find(x => x.id === id); if (!q) return;
+  document.querySelectorAll('.sous-vue').forEach(sv => sv.style.display = 'none');
+  const sv = document.getElementById('sv-question');
+  sv.style.display = 'block';
+  sv.dataset.qid = id;
+  etat.sectionActive = 'question';
+  majNavActif();
+  const utileActif = etat.utilesQ.has(q.id) ? ' actif' : '';
+  const saveActif = etat.sauvegardees.has(q.id) ? ' actif' : '';
+  const peutRepondre = estMentor();
+  const zoneRep = peutRepondre
+    ? `<div style="display:flex; gap:8px; margin-top:12px;">
+         <input type="text" placeholder="Écrire une réponse…" id="rep-input-${q.id}" />
+         <button class="btn btn-primaire btn-petit" onclick="ajouterReponse(${q.id})">Envoyer</button>
+       </div>`
+    : `<div class="carte" style="margin-top:12px; background:var(--fond); font-size:13px; color:var(--texte-doux);">
+         ✦ Seuls les mentors peuvent répondre aux questions. Devenez mentor pour partager votre expertise.
+       </div>`;
+  document.getElementById('contenu-question').innerHTML = `
+    <article class="carte-question">
+      <div class="q-entete">
+        ${avatarHTML(q.initiales, 's')}
+        <div class="info"><strong>${q.auteur}</strong> · <span>${q.pays}</span><time>${q.temps}</time></div>
+      </div>
+      <h2 class="q-titre">${q.titre}</h2>
+      <p class="q-corps">${q.corps}</p>
+      <div class="q-tags"><span class="tag">${q.secteur}</span></div>
+      <div class="q-pied">
+        <button class="${utileActif.trim()}" onclick="basculerUtileQ(${q.id})">👍 <span>${q.utile}</span> ${etat.utilesQ.has(q.id) ? 'Vous avez aimé' : 'Utile'}</button>
+        <button class="bouton-sauver${saveActif}" onclick="basculerSauver(${q.id})">${etat.sauvegardees.has(q.id) ? '🔖 Sauvegardée' : '🔖 Sauvegarder'}</button>
+      </div>
+      <div class="reponses" style="display:flex; flex-direction:column;">
+        <h4 style="margin:14px 0 8px;">${q.reponses.length} réponse(s)</h4>
+        ${q.reponses.map(r => reponseHTML(r)).join('') || '<p style="color:var(--texte-doux); font-size:14px;">Aucune réponse pour le moment.</p>'}
+        ${zoneRep}
+      </div>
+    </article>`;
+  window.scrollTo(0, 0);
 }
 
 function reponseHTML(r) {
@@ -287,80 +391,99 @@ function reponseHTML(r) {
   </span>` : '';
   const sous = (r.sousReponses||[]).map(sr => `
     <div class="reponse-imbriquee">
-      <div class="r-entete">
-        <div class="avatar avatar-s">${sr.init}</div>
-        <div class="info"><strong>${sr.auteur}</strong></div>
-      </div>
+      <div class="r-entete">${avatarHTML(sr.init, 's')}<div class="info"><strong>${sr.auteur}</strong></div></div>
       <p>${sr.contenu}</p>
     </div>`).join('');
   return `
     <div class="${cls}">
-      <div class="r-entete">
-        <div class="avatar avatar-s">${r.init}</div>
-        <div class="info"><strong>${r.auteur}</strong> ${badge}</div>
-      </div>
+      <div class="r-entete">${avatarHTML(r.init, 's')}<div class="info"><strong>${r.auteur}</strong> ${badge}</div></div>
       <p>${r.contenu}</p>
       <div class="actions">
         <button onclick="utileR(this)">👍 ${r.utile} Utile</button>
         ${etoiles}
-        <button onclick="repondreA(this)">↩ Répondre</button>
       </div>
       ${sous}
     </div>`;
 }
 
-function basculerReponses(id) {
-  const z = document.getElementById('rep-' + id);
-  z.style.display = z.style.display === 'none' ? 'flex' : 'none';
-  z.style.flexDirection = 'column';
-}
-
-function marquerUtileQ(id) {
-  const q = questions.find(x => x.id === id); q.utile++;
-  toast('Marqué comme utile.'); rendreFil();
-}
 function utileR(btn) { toast('Réponse marquée comme utile.'); }
-function repondreA(btn) { toast('Fonction : répondre à cette réponse.'); }
 function noter(elem, n) {
   const conteneur = elem.parentElement;
   [...conteneur.children].forEach((c, i) => c.classList.toggle('vide', i >= n));
   toast(`Note attribuée : ${n}/5 ⭐`);
 }
 function signaler(id) { toast('Question signalée à la modération.'); }
+
 function ajouterReponse(id) {
+  if (!estMentor()) return toast('Seuls les mentors peuvent répondre.', 'erreur');
   const inp = document.getElementById('rep-input-'+id);
   if (!inp.value.trim()) return toast('Écrivez votre réponse.', 'erreur');
   const q = questions.find(x => x.id === id);
-  q.reponses.push({ auteur: etat.utilisateur.prenom + ' ' + etat.utilisateur.nom, init: etat.utilisateur.initiales, mentor: etat.utilisateur.role === 'mentor', verifie: false, contenu: inp.value, utile: 0 });
+  const u = etat.utilisateur;
+  q.reponses.push({ auteur: u.prenom + ' ' + u.nom, init: u.initiales, mentor: true, verifie: false, contenu: inp.value, utile: 0 });
   q.repCount++;
+  // Notifier les abonnés de ce mentor (= utilisateurs qui suivent — ici on simule en notifiant l'utilisateur courant si la question est suivie)
+  notifierAbonnesMentor(u.prenom + ' ' + u.nom, q.id, q.titre);
   toast('Réponse publiée.');
-  inp.value = ''; rendreFil(); setTimeout(() => basculerReponses(id), 50);
+  inp.value = ''; ouvrirQuestion(id);
 }
 
 /* ============================================================
-   COLONNE DROITE (tendance + suggestions)
+   COLONNE DROITE — TENDANCES & SUGGESTIONS
    ============================================================ */
 function rendreColonneDroite() {
   document.getElementById('questions-tendance').innerHTML =
     [...questions].sort((a,b) => b.utile - a.utile).slice(0, 5).map(q => `
-      <li><a href="#" onclick="event.preventDefault(); basculerReponses(${q.id})">${q.titre}</a>
+      <li><a href="#" onclick="event.preventDefault(); ouvrirQuestion(${q.id})">${q.titre}</a>
       <span>${q.utile} 👍 · ${q.repCount} 💬</span></li>`).join('');
   document.getElementById('mentors-suggeres').innerHTML =
-    mentors.slice(0, 4).map(m => `
-      <li><div class="mentor-sugg">
-        <div class="avatar">${m.initiales}</div>
+    mentors.slice(0, 4).map(m => {
+      const suivi = etat.suivis.has(m.id);
+      return `<li><div class="mentor-sugg">
+        ${avatarHTML(m.initiales)}
         <div class="info"><strong>${m.prenom} ${m.nom}</strong><span>${m.secteur}</span></div>
-        <button class="btn btn-fantome btn-petit" onclick="suivre(this, '${m.prenom}')">+ Suivre</button>
-      </div></li>`).join('');
+        <button class="btn btn-fantome btn-petit" onclick="basculerSuivre(${m.id})">${suivi ? '✓ Suivi' : '+ Suivre'}</button>
+      </div></li>`;
+    }).join('');
 }
 
-function suivre(btn, nom) {
-  btn.textContent = '✓ Suivi'; btn.classList.add('btn-secondaire');
-  toast(`Vous suivez désormais ${nom}.`);
+function basculerSuivre(mentorId) {
+  const m = mentors.find(x => x.id === mentorId); if (!m) return;
+  if (etat.suivis.has(mentorId)) {
+    etat.suivis.delete(mentorId);
+    toast(`Vous ne suivez plus ${m.prenom}.`);
+  } else {
+    etat.suivis.add(mentorId);
+    toast(`Vous suivez désormais ${m.prenom}. Vous serez notifié(e) de ses réponses.`);
+  }
+  rendreColonneDroite();
+}
+
+/* Quand un mentor répond, notifier tous ses abonnés */
+function notifierAbonnesMentor(nomMentor, questionId, titreQ) {
+  // Si l'utilisateur courant suit un mentor portant ce nom, il reçoit une notif
+  mentors.forEach(m => {
+    if (`${m.prenom} ${m.nom}` === nomMentor && etat.suivis.has(m.id)) {
+      notifications.unshift({
+        texte: `${nomMentor} (que vous suivez) a répondu à « ${titreQ} »`,
+        temps: "à l'instant", nonLu: true, questionId
+      });
+    }
+  });
+  rendreNotifications();
+}
+
+/* Hook : quand un mentor de la démo "ajoute" une réponse via l'admin/etc. — exposé pour usage futur */
+function mentorRepondAQuestion(mentorId, questionId, contenu) {
+  const m = mentors.find(x => x.id === mentorId); const q = questions.find(x => x.id === questionId);
+  if (!m || !q) return;
+  q.reponses.push({ auteur:`${m.prenom} ${m.nom}`, init:m.initiales, mentorId:m.id, mentor:true, verifie:m.verifie, contenu, utile:0 });
+  q.repCount++;
+  notifierAbonnesMentor(`${m.prenom} ${m.nom}`, q.id, q.titre);
 }
 
 /* ============================================================
-   MODAL PUBLIER UNE QUESTION
+   MODAL PUBLIER + SIMILAIRES
    ============================================================ */
 function ouvrirModal(id) { document.getElementById(id).classList.add('ouvert'); }
 function fermerModal(id) { document.getElementById(id).classList.remove('ouvert'); }
@@ -373,6 +496,29 @@ function choisirCat(elem) {
   elem.classList.add('actif');
   etat.categorieChoisie = elem.textContent;
 }
+
+/* Évalue le titre saisi et propose des questions similaires existantes */
+function majSimilaires() {
+  const t = (document.getElementById('q-titre').value || '').trim().toLowerCase();
+  const bloc = document.getElementById('bloc-similaires');
+  const liste = document.getElementById('liste-similaires');
+  if (t.length < 4) { bloc.style.display = 'none'; return; }
+  const motsT = new Set(t.split(/\W+/).filter(m => m.length > 3));
+  const scored = questions.map(q => {
+    const motsQ = new Set(q.titre.toLowerCase().split(/\W+/).filter(m => m.length > 3));
+    let inter = 0; motsT.forEach(m => { if (motsQ.has(m)) inter++; });
+    const inclus = q.titre.toLowerCase().includes(t) ? 2 : 0;
+    return { q, score: inter + inclus };
+  }).filter(x => x.score > 0).sort((a,b) => b.score - a.score).slice(0, 4);
+
+  if (!scored.length) { bloc.style.display = 'none'; return; }
+  liste.innerHTML = scored.map(({q}) =>
+    `<li>• <a href="#" onclick="event.preventDefault(); fermerModal('modalPublier'); ouvrirQuestion(${q.id});">${q.titre}</a>
+       <span style="color:var(--texte-doux); font-size:12px;"> — ${q.repCount} réponse(s)</span></li>`
+  ).join('');
+  bloc.style.display = 'block';
+}
+
 function publierQuestion() {
   const t = document.getElementById('q-titre').value.trim();
   const c = document.getElementById('q-corps').value.trim();
@@ -385,14 +531,16 @@ function publierQuestion() {
   document.getElementById('q-titre').value = ''; document.getElementById('q-corps').value = '';
   document.querySelectorAll('#chips-cat .chip-select').forEach(c => c.classList.remove('actif'));
   document.getElementById('compteur').textContent = '0';
+  document.getElementById('bloc-similaires').style.display = 'none';
+  etat.categorieChoisie = null;
   toast('Votre question a été publiée !');
-  rendreFil();
+  rendreFil(); rendreColonneDroite();
 }
 
 /* ============================================================
-   PROFIL UTILISATEUR
+   PROFIL
    ============================================================ */
-let profilCible = null; // null = mon profil, sinon mentor
+let profilCible = null;
 
 function ouvrirProfilMentor(id) {
   profilCible = mentors.find(m => m.id === id);
@@ -400,14 +548,13 @@ function ouvrirProfilMentor(id) {
 }
 function rendreProfil() {
   if (profilCible) return rendreProfilMentor(profilCible);
-  profilCible = null;
   const u = etat.utilisateur;
   document.getElementById('entete-profil').innerHTML = `
-    <div class="avatar avatar-xl">${u.initiales}</div>
+    ${avatarHTML(u.initiales, 'xl', u.photo)}
     <div class="infos">
       <h2>${u.prenom} ${u.nom}</h2>
       <div class="ligne-meta">
-        <span class="badge-role">🎓 Étudiant</span>
+        <span class="badge-role">${estMentor() ? '🏆 Mentor' : '🎓 Étudiant'}</span>
         <span>📍 ${u.pays}</span>
         <span>🏫 ${u.etudes}</span>
       </div>
@@ -419,7 +566,10 @@ function rendreProfil() {
         <div><strong style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--bleu);">${u.mentorsSuivis}</strong> mentors suivis</div>
       </div>
     </div>
-    <div class="actions"><button class="btn btn-secondaire" onclick="naviguerApp('parametres')">✎ Modifier le profil</button></div>`;
+    <div class="actions">
+      <button class="btn btn-secondaire" onclick="televerserPhotoCompte()">📷 Changer la photo</button>
+      <button class="btn btn-secondaire" onclick="naviguerApp('parametres')">✎ Modifier le profil</button>
+    </div>`;
   document.getElementById('tabs-profil').innerHTML = `
     <div class="tab-profil actif" onclick="ongletProfil(this, 'questions')">Mes questions</div>
     <div class="tab-profil" onclick="ongletProfil(this, 'sauvees')">Questions sauvegardées</div>
@@ -430,19 +580,29 @@ function ongletProfil(elem, t) {
   document.querySelectorAll('.tab-profil').forEach(o => o.classList.remove('actif'));
   elem.classList.add('actif');
   const c = document.getElementById('contenu-profil');
-  if (t === 'questions') c.innerHTML = questions.slice(0,3).map(q => carteQuestionHTML(q)).join('');
-  else if (t === 'sauvees') c.innerHTML = `<div class="etat-vide carte"><div class="illu">🔖</div><h3>Aucune question sauvegardée</h3><p>Sauvegardez les questions intéressantes pour les retrouver ici.</p></div>`;
-  else c.innerHTML = `<div class="carte"><div class="carte-titre">Mes mentors suivis</div>${mentors.slice(0,4).map(m => `
-    <div class="suivi-item" onclick="ouvrirProfilMentor(${m.id})">
-      <div class="avatar">${m.initiales}</div>
-      <div class="info"><strong>${m.prenom} ${m.nom}</strong><span>${m.secteur} · ${m.pays}</span></div>
-    </div>`).join('')}</div>`;
+  if (t === 'questions') {
+    c.innerHTML = questions.slice(0,3).map(q => carteQuestionHTML(q)).join('');
+  } else if (t === 'sauvees') {
+    const liste = questions.filter(q => etat.sauvegardees.has(q.id));
+    c.innerHTML = liste.length
+      ? liste.map(q => carteQuestionHTML(q)).join('')
+      : `<div class="etat-vide carte"><div class="illu">🔖</div><h3>Aucune question sauvegardée</h3><p>Sauvegardez les questions intéressantes pour les retrouver ici.</p></div>`;
+  } else {
+    const ids = [...etat.suivis];
+    const suiv = ids.length ? mentors.filter(m => etat.suivis.has(m.id)) : mentors.slice(0, 4);
+    c.innerHTML = `<div class="carte"><div class="carte-titre">Mes mentors suivis</div>${suiv.map(m => `
+      <div class="suivi-item" onclick="ouvrirProfilMentor(${m.id})">
+        ${avatarHTML(m.initiales)}
+        <div class="info"><strong>${m.prenom} ${m.nom}</strong><span>${m.secteur} · ${m.pays}</span></div>
+      </div>`).join('')}</div>`;
+  }
 }
 
 function rendreProfilMentor(m) {
   const dispoLabel = { disponible:'🟢 Disponible', occupe:'🟠 Occupé', absent:'⚫ Absent' }[m.dispo];
+  const suivi = etat.suivis.has(m.id);
   document.getElementById('entete-profil').innerHTML = `
-    <div class="avatar avatar-xl">${m.initiales}</div>
+    ${avatarHTML(m.initiales, 'xl')}
     <div class="infos">
       <h2>${m.prenom} ${m.nom} ${m.verifie ? '<span class="badge-verifie">✓ Vérifié</span>' : ''}</h2>
       <div class="ligne-meta">
@@ -451,25 +611,20 @@ function rendreProfilMentor(m) {
         <span><span class="point-statut ${m.dispo}"></span>${dispoLabel.replace(/^[^A-Za-zÀ-ÿ]+/, '')}</span>
       </div>
       <p style="margin:10px 0; color:var(--texte-doux);">${m.bio}</p>
-      <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <span class="tag tag-ambre">${m.secteur}</span>
-      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;"><span class="tag tag-ambre">${m.secteur}</span></div>
       <div style="display:flex; gap:24px; margin-top:14px; font-size:14px;">
         <div><strong style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--bleu);">${m.reponses}</strong> réponses</div>
         <div><strong style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--ambre);">${m.note} ★</strong> note moyenne</div>
-        <div><strong style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--bleu);">${m.anciennete}</strong> sur Mentora</div>
+        <div><strong style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--bleu);">${m.anciennete}</strong> sur LaSource</div>
       </div>
     </div>
     <div class="actions">
-      <button class="btn btn-primaire" onclick="ouvrirModalMsg('${m.prenom} ${m.nom}')">✉️ Envoyer un message</button>
-      <button class="btn btn-secondaire" onclick="toast('Vous suivez ${m.prenom}.')">+ Suivre</button>
+      <button class="btn ${suivi ? 'btn-secondaire' : 'btn-primaire'}" onclick="basculerSuivre(${m.id}); profilCible = mentors.find(x => x.id === ${m.id}); rendreProfilMentor(profilCible);">${suivi ? '✓ Suivi' : '+ Suivre'}</button>
     </div>`;
   document.getElementById('tabs-profil').innerHTML = `
     <div class="tab-profil actif" onclick="ongletMentor(this, 'apropos')">À propos</div>
     <div class="tab-profil" onclick="ongletMentor(this, 'reponses')">Réponses récentes</div>`;
   ongletMentor(document.querySelector('.tab-profil.actif'), 'apropos');
-  // Trick : back to my profile button
-  const back = document.createElement('button');
 }
 function ongletMentor(elem, t) {
   document.querySelectorAll('.tab-profil').forEach(o => o.classList.remove('actif'));
@@ -481,77 +636,10 @@ function ongletMentor(elem, t) {
       ${m.experiences.map(e => `<div class="bloc-exp"><div class="icone">${e.icone}</div><div class="details"><strong>${e.poste}</strong><span>${e.dates}</span></div></div>`).join('')}</div>
       <div style="margin-top:14px;"><button class="btn btn-fantome btn-petit" onclick="profilCible = null; rendreProfil()">← Retour à mon profil</button></div>`;
   } else {
-    const reps = questions.flatMap(q => q.reponses.filter(r => r.auteur.includes(m.prenom)).map(r => ({...r, question: q.titre})));
-    c.innerHTML = reps.length ? reps.map(r => `<div class="carte" style="margin-bottom:12px;"><strong>Sur :</strong> ${r.question}<p style="margin-top:8px; color:var(--texte-doux);">${r.contenu}</p></div>`).join('')
+    const reps = questions.flatMap(q => q.reponses.filter(r => r.auteur.includes(m.prenom)).map(r => ({...r, question: q.titre, qid: q.id})));
+    c.innerHTML = reps.length ? reps.map(r => `<div class="carte" style="margin-bottom:12px; cursor:pointer;" onclick="ouvrirQuestion(${r.qid})"><strong>Sur :</strong> ${r.question}<p style="margin-top:8px; color:var(--texte-doux);">${r.contenu}</p></div>`).join('')
       : `<div class="etat-vide carte"><div class="illu">💭</div><h3>Pas de réponse récente</h3></div>`;
   }
-}
-
-/* ============================================================
-   MESSAGERIE
-   ============================================================ */
-function rendreMessagerie() {
-  document.getElementById('liste-conversations').innerHTML = conversations.map(c => `
-    <div class="conv-item ${etat.conversationActive === c.id ? 'actif' : ''}" onclick="ouvrirConversation(${c.id})">
-      <div class="avatar">${c.init}</div>
-      <div class="info"><strong>${c.avec}<time>${c.heure}</time></strong><p>${c.dernier}</p></div>
-      ${c.nonLu ? '<div class="non-lu-point"></div>' : ''}
-    </div>`).join('');
-}
-
-function ouvrirConversation(id) {
-  etat.conversationActive = id;
-  const c = conversations.find(x => x.id === id);
-  c.nonLu = false; majBadgeMsg();
-  rendreMessagerie();
-  document.getElementById('zone-chat').innerHTML = `
-    <div class="chat-entete">
-      <div class="avatar">${c.init}</div>
-      <div><div class="nom">${c.avec}</div><span style="font-size:12px; color:var(--vert);">● En ligne</span></div>
-      <div class="menu" onclick="menuChatContextuel('${c.avec}')">⋯</div>
-    </div>
-    <div class="chat-messages" id="chat-msgs">
-      ${c.messages.map(m => `<div class="bulle ${m.recu?'recu':'envoye'}">${m.contenu}${m.statut?`<span class="statut">${m.statut}</span>`:''}</div>`).join('')}
-    </div>
-    <div class="chat-saisie">
-      <input type="text" id="champ-msg" placeholder="Votre message…" onkeydown="if(event.key==='Enter') envoyerMessage(${id})" />
-      <button class="btn btn-secondaire btn-petit" onclick="envoyerLien(${id})" title="Joindre une question">🔗</button>
-      <button class="btn btn-primaire" onclick="envoyerMessage(${id})">Envoyer</button>
-    </div>`;
-  const msgs = document.getElementById('chat-msgs'); msgs.scrollTop = msgs.scrollHeight;
-}
-function envoyerMessage(id) {
-  const inp = document.getElementById('champ-msg');
-  if (!inp.value.trim()) return;
-  const c = conversations.find(x => x.id === id);
-  c.messages.push({ de:'moi', contenu: inp.value, heure:'maintenant', recu:false, statut:'Envoyé ✓' });
-  c.dernier = inp.value; c.heure = 'maintenant';
-  inp.value = '';
-  ouvrirConversation(id);
-}
-function envoyerLien(id) {
-  const c = conversations.find(x => x.id === id);
-  c.messages.push({ de:'moi', contenu:'🔗 Question partagée : "Comment décrocher un stage en M&A à Londres ?"', heure:'maintenant', recu:false, statut:'Envoyé ✓' });
-  ouvrirConversation(id);
-}
-function menuChatContextuel(nom) {
-  if (confirm(`Bloquer ${nom} ?`)) toast(`${nom} a été bloqué(e).`);
-}
-function majBadgeMsg() {
-  const n = conversations.filter(c => c.nonLu).length;
-  const b = document.getElementById('badge-msg');
-  b.style.display = n ? 'flex' : 'none'; b.textContent = n;
-}
-function ouvrirModalMsg(nom) {
-  document.getElementById('dest-msg').value = nom;
-  document.getElementById('contenu-msg').value = '';
-  ouvrirModal('modalMessage');
-}
-function envoyerNouveauMsg() {
-  const d = document.getElementById('dest-msg').value;
-  if (!document.getElementById('contenu-msg').value.trim()) return toast('Le message est vide.', 'erreur');
-  fermerModal('modalMessage');
-  toast(`Message envoyé à ${d}.`);
 }
 
 /* ============================================================
@@ -560,14 +648,23 @@ function envoyerNouveauMsg() {
 function basculerNotifs() {
   document.getElementById('panneauNotifs').classList.toggle('ouvert');
   document.getElementById('menuProfil').classList.remove('ouvert');
+  etat.sectionActive = etat.sectionActive === 'notifs' ? 'fil' : 'notifs';
+  majNavActif();
 }
 function rendreNotifications() {
-  document.getElementById('liste-notifs').innerHTML = notifications.map(n => `
-    <div class="notif-item ${n.nonLu?'non-lu':''}">
-      <div class="notif-icone">${n.icone}</div>
+  document.getElementById('liste-notifs').innerHTML = notifications.map((n, i) => `
+    <div class="notif-item ${n.nonLu?'non-lu':''} ${n.questionId ? 'cliquable' : ''}" onclick="cliquerNotif(${i})">
+      <div class="notif-icone">🔔</div>
       <div><p>${n.texte}</p><time>${n.temps}</time></div>
     </div>`).join('');
   majBadgeNotifs();
+}
+function cliquerNotif(i) {
+  const n = notifications[i]; if (!n) return;
+  n.nonLu = false;
+  document.getElementById('panneauNotifs').classList.remove('ouvert');
+  if (n.questionId) ouvrirQuestion(n.questionId);
+  rendreNotifications();
 }
 function majBadgeNotifs() {
   const n = notifications.filter(x => x.nonLu).length;
@@ -580,7 +677,7 @@ function toutMarquerLu() {
 }
 
 /* ============================================================
-   MENU PROFIL (navbar)
+   MENU PROFIL
    ============================================================ */
 function basculerMenuProfil() {
   document.getElementById('menuProfil').classList.toggle('ouvert');
@@ -599,19 +696,36 @@ function rechercher(terme) {
   let html = '';
   if (mres.length) {
     html += '<h5>Mentors</h5>';
-    html += mres.slice(0,4).map(m => `<div class="item-resultat" onclick="ouvrirProfilMentor(${m.id}); document.getElementById('dropRech').classList.remove('ouvert');"><div class="avatar avatar-s">${m.initiales}</div><div><strong>${m.prenom} ${m.nom}</strong><div style="font-size:12px; color:var(--texte-doux);">${m.secteur} · ${m.pays}</div></div></div>`).join('');
+    html += mres.slice(0,4).map(m => `<div class="item-resultat" onmousedown="ouvrirProfilMentor(${m.id}); document.getElementById('dropRech').classList.remove('ouvert');">${avatarHTML(m.initiales, 's')}<div><strong>${m.prenom} ${m.nom}</strong><div style="font-size:12px; color:var(--texte-doux);">${m.secteur} · ${m.pays}</div></div></div>`).join('');
   }
   if (qres.length) {
     html += '<h5>Questions</h5>';
-    html += qres.slice(0,4).map(q => `<div class="item-resultat">💬 ${q.titre}</div>`).join('');
+    html += qres.slice(0,4).map(q => `<div class="item-resultat" onmousedown="ouvrirQuestion(${q.id}); document.getElementById('dropRech').classList.remove('ouvert');">💬 ${q.titre}</div>`).join('');
   }
   if (!html) html = '<div style="padding:14px; color:var(--texte-doux); font-size:14px;">Aucun résultat</div>';
+  html += `<div style="padding:10px 14px; border-top:1px solid var(--bordure); text-align:right;">
+    <button class="btn btn-primaire btn-petit" onmousedown="lancerRecherche()">Voir tous les résultats →</button>
+  </div>`;
   drop.innerHTML = html;
   drop.classList.add('ouvert');
 }
 
+function lancerRecherche() {
+  const inp = document.getElementById('recherche-glob');
+  const v = (inp.value || '').trim();
+  if (!v) return toast('Saisissez un terme à rechercher.', 'erreur');
+  etat.rechercheTerme = v;
+  document.getElementById('dropRech').classList.remove('ouvert');
+  naviguerApp('fil');
+}
+function effacerRecherche() {
+  etat.rechercheTerme = '';
+  document.getElementById('recherche-glob').value = '';
+  rendreFil();
+}
+
 /* ============================================================
-   PARAMETRES
+   PARAMÈTRES
    ============================================================ */
 function changerPanParam(elem, p) {
   if (!elem) return;
@@ -641,7 +755,13 @@ function panneauCompte() {
       <div class="compteur-car"><span id="bio-cnt">${u.bio.length}</span>/500</div>
     </div>
     <div class="champ"><label>Photo de profil</label>
-      <div style="display:flex; align-items:center; gap:14px;"><div class="avatar avatar-l">${u.initiales}</div><button class="btn btn-secondaire">Téléverser</button></div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        ${avatarHTML(u.initiales, 'l', u.photo)}
+        <div>
+          <button class="btn btn-secondaire" onclick="televerserPhotoCompte()">📷 Téléverser une photo</button>
+          <p style="font-size:12px; color:var(--texte-doux); margin-top:6px;">JPG ou PNG, max 3 Mo. Visible par les autres utilisateurs.</p>
+        </div>
+      </div>
     </div>
     <div class="champ"><label>Secteurs d'intérêt</label>
       <div class="chips-select">
@@ -659,7 +779,7 @@ function panneauNotifsParam() {
     ['Réactions sur mes publications', true],
     ['Nouveaux abonnés', true],
     ['Nouvelles questions dans mes secteurs', false],
-    ['Messages privés', true],
+    ['Réponses des mentors que je suis', true],
     ['Newsletter hebdomadaire', false],
   ];
   return `<div class="section-param"><h2>Notifications</h2>
@@ -686,9 +806,6 @@ function panneauSecurite() {
 
 function panneauConfid() {
   return `<div class="section-param"><h2>Confidentialité</h2>
-    <div class="champ"><label>Qui peut m'envoyer des messages ?</label>
-      <select><option>Tout le monde</option><option>Seulement les mentors</option><option>Personnes que je suis</option><option>Personne</option></select>
-    </div>
     <div class="ligne-toggle"><div><strong>Profil public</strong><div class="desc">Votre profil est visible par tous les visiteurs.</div></div><div class="toggle on" onclick="this.classList.toggle('on'); toast('Préférence mise à jour.')"></div></div>
     <button class="btn btn-primaire" style="margin-top:14px;" onclick="toast('Préférences enregistrées.')">Enregistrer</button>
   </div>`;
@@ -724,7 +841,7 @@ function adminDashboard() {
       <div class="carte"><div class="carte-titre">Activités récentes</div>
         <ul style="list-style:none; font-size:13px;">
           <li style="padding:8px 0; border-bottom:1px solid var(--bordure);">✓ Nouveau mentor validé : <strong>Karim B.</strong></li>
-          <li style="padding:8px 0; border-bottom:1px solid var(--bordure);">🚩 Signalement résolu (commentaire)</li>
+          <li style="padding:8px 0; border-bottom:1px solid var(--bordure);">🚩 Signalement résolu</li>
           <li style="padding:8px 0; border-bottom:1px solid var(--bordure);">👤 12 nouvelles inscriptions aujourd'hui</li>
           <li style="padding:8px 0;">🏷️ Catégorie ajoutée : "Cybersécurité"</li>
         </ul>
@@ -740,7 +857,7 @@ function adminUsers() {
     ['Léa Tremblay','lea@email.com','Étudiant','actif'],
   ];
   return `<h2 style="margin-bottom:18px;">Gestion des utilisateurs</h2>
-    <input style="max-width:340px; margin-bottom:14px;" placeholder="🔍 Rechercher un utilisateur…" />
+    <input style="max-width:340px; margin-bottom:14px;" placeholder=" Rechercher un utilisateur…" />
     <table class="tableau"><thead><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr></thead>
     <tbody>${users.map(u => `<tr>
       <td><strong>${u[0]}</strong></td><td>${u[1]}</td>
@@ -756,7 +873,7 @@ function adminMentors() {
   return `<h2 style="margin-bottom:18px;">Validation des mentors</h2>
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;">
       ${att.map(m => `<div class="carte"><div style="display:flex; gap:12px; align-items:center;">
-        <div class="avatar avatar-l">${m.initiales}</div>
+        ${avatarHTML(m.initiales, 'l')}
         <div><strong>${m.prenom} ${m.nom}</strong><div style="color:var(--texte-doux); font-size:13px;">${m.ville}, ${m.pays}</div><span class="tag tag-ambre">${m.secteur}</span></div>
         </div><p style="margin:12px 0; font-size:14px;">${m.bio}</p>
         <div style="display:flex; gap:8px;">
@@ -772,7 +889,7 @@ function adminSignalements() {
         <strong>Signalement #${1000+i}</strong>
         <span class="tag tag-rose">Contenu inapproprié</span>
       </div>
-      <p style="color:var(--texte-doux); font-size:14px;">"Lorem ipsum dolor sit amet, contenu signalé par un utilisateur…"</p>
+      <p style="color:var(--texte-doux); font-size:14px;">"Contenu signalé par un utilisateur…"</p>
       <div style="margin-top:8px; font-size:13px; color:var(--texte-doux);">Auteur : <strong>Utilisateur ${i}</strong> · Signalé par 3 personnes</div>
       <div style="display:flex; gap:8px; margin-top:12px;">
         <button class="btn btn-secondaire btn-petit" onclick="toast('Contenu masqué.')">Masquer</button>
@@ -815,20 +932,20 @@ function toast(message, type = 'succes') {
 }
 
 /* ============================================================
-   FERMETURES CLIC EXTERIEUR
+   FERMETURES CLIC EXTÉRIEUR
    ============================================================ */
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.nav-profil') && !e.target.closest('.menu-profil'))
     document.getElementById('menuProfil')?.classList.remove('ouvert');
   if (!e.target.closest('[onclick*="basculerNotifs"]') && !e.target.closest('.panneau-notifs'))
     document.getElementById('panneauNotifs')?.classList.remove('ouvert');
+  if (!e.target.closest('.nav-recherche'))
+    document.getElementById('dropRech')?.classList.remove('ouvert');
 });
 
 /* ============================================================
-   DEMARRAGE
+   DÉMARRAGE
    ============================================================ */
 window.addEventListener('DOMContentLoaded', () => {
-  majBadgeMsg();
-  // Vue par défaut : accueil. Décommenter pour démarrer directement dans l'app.
-  // afficherVue('vue-app'); initApp();
+  // afficherVue('vue-app'); initApp(); // décommenter pour démarrer directement dans l'app
 });
